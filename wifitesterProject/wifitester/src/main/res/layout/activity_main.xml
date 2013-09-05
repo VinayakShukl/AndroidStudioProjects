@@ -9,7 +9,7 @@
             android:text="Scan"
             android:id="@+id/buttonScan"
             android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"/>
+            android:layout_alignParentRight="true"/>
 
     <ListView
             android:layout_width="wrap_content"
@@ -18,4 +18,12 @@
             android:layout_centerHorizontal="true"
             android:layout_alignParentTop="true"
             android:layout_above="@+id/buttonScan"/>
+
+    <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Attach Metadata"
+            android:id="@+id/createStat"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"/>
 </RelativeLayout>
