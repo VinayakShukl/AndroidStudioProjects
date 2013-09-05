@@ -5,17 +5,32 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends Activity {
 
     WifiManager mainWifi;
     IntentFilter filter;
+    List<ScanResult> scanResults;
+    ArrayList<Map<String, String>> list;
+    SimpleAdapter adapter;
+    ListView listview;
+    Button scanButton;
     boolean intentIsRegistered = false;
 
     private BroadcastReceiver wifiEventReceiver = new BroadcastReceiver() {
@@ -23,29 +38,66 @@ public class MainActivity extends Activity {
         public void onReceive(Context context, Intent intent) {
             Log.e("DEBUG", "Update received!");
             if(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION.equals(intent.getAction())) {
-                Log.e("DEBUG","UPDATE RECEIVED");
-                //List<ScanResult> li = mainWifi.getScanResults();
-                Toast.makeText(context, "New values received!", Toast.LENGTH_SHORT).show();
-                /*for (int i=0; i<li.size(); i++) {
-                    Log.e("DEBUG","ssid: "+li.get(i).SSID+" bssid: "+li.get(i).BSSID+" cap: "+li.get(i).capabilities+" level: "+li.get(i).level+ "chan: "+li.get(i).frequency);
-                }*/
-                mainWifi.startScan();
-                Toast.makeText(context, "New scan started!", Toast.LENGTH_SHORT).show();
+                scanResults = mainWifi.getScanResults();
+                list = new ArrayList<Map<String, String>>();
+                list.clear();
+                list = buildData(scanResults);
+                Collections.sort(scanResults, new Comparator<ScanResult>() {
+                    @Override
+                    public int compare(ScanResult lhs, ScanResult rhs) {
+                        return (lhs.level > rhs.level ? -1 : (lhs.level == rhs.level ? 0 : 1));
+                    }
+                });
+                updateList(context);
             }
         }
     };
+
+    private void updateList(Context context){
+        adapter = new SimpleAdapter(context, list, R.layout.listitem, new String[]{"BSSID", "strength", "SSID"}, new int[] {R.id.BSSID, R.id.strength, R.id.SSID});
+        listview = (ListView) findViewById(R.id.listView);
+        listview.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+    }
+
+    private ArrayList<Map<String, String>> buildData(java.util.List<ScanResult> s) {
+        ArrayList<Map<String, String>> list = new ArrayList<Map<String, String>>();
+        for (ScanResult result : s) {
+            list.add(putData(result.BSSID, result.SSID, result.level));
+        }
+        return list;
+    }
+
+    private HashMap<String, String> putData(String BSSID, String SSID, int level) {
+        HashMap<String, String> item = new HashMap<String, String>();
+        item.put("BSSID", BSSID);
+        item.put("SSID", SSID);
+        item.put("strength", Integer.toString(level));
+        return item;
+    }
 
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-       // Button wifiConnect = (Button)findViewById(R.id.WifiConnect);
+        scanButton = (Button)findViewById(R.id.buttonScan);
         mainWifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         filter = new IntentFilter();
         filter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
         this.registerReceiver(wifiEventReceiver, filter);
         intentIsRegistered = true;
+
+        scanButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                if (!mainWifi.startScan()) {
+                    Log.e("Error","Scanning could not start");
+                    Toast.makeText(getApplicationContext(), "Scanning could not start", Toast.LENGTH_SHORT).show();
+                } else {
+                    Log.e("DEBUG", "Scanning has started...");
+                }
+            }
+        });
 
         if(!mainWifi.isWifiEnabled()){
             Log.e("DEBUG","turning on wifi");
@@ -55,23 +107,6 @@ public class MainActivity extends Activity {
         } else {
             Log.e("DEBUG","wifi is on");
         }
-
-        if (!mainWifi.startScan()) {
-            Log.e("Error","Scanning could not start");
-        } else {
-            Log.e("DEBUG", "Scanning has started");
-        }
-    }
-
-    public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add(0, 0, 0, "Refresh");
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
-        mainWifi.startScan();
-        return super.onMenuItemSelected(featureId, item);
     }
 
     @Override
@@ -82,7 +117,6 @@ public class MainActivity extends Activity {
             intentIsRegistered = false;
         }
     }
-
 
     @Override
     public void onResume() {
