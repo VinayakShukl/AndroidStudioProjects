@@ -4,8 +4,8 @@
     android:versionCode="1"
     android:versionName="1.0" >
     <uses-sdk
-            android:minSdkVersion="9"
-            android:targetSdkVersion="17" />
+        android:minSdkVersion="8"
+        android:targetSdkVersion="18" />
 
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
@@ -25,7 +25,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.android.wifitester.SendActivity"/>
         <activity
                 android:name="com.android.wifitester.SendStat"
                 android:label="@string/title_activity_send_stat"

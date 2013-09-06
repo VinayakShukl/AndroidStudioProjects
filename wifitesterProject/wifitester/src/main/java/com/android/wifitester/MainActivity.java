@@ -35,10 +35,6 @@ public class MainActivity extends Activity {
     Button createStat;
     boolean intentIsRegistered = false;
 
-    public List<ScanResult> getCurrentScanResults() {
-        return scanResults;
-    }
-
     private BroadcastReceiver wifiEventReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -127,8 +123,6 @@ public class MainActivity extends Activity {
             }
         });
     }
-
-    ;
 
     @Override
     public void onPause() {

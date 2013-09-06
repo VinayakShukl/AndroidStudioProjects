@@ -56,7 +56,7 @@
         <item>A Wing Hallway</item>
         <item>B Wing Hallway</item>
         <item>Between A Wing and B Wing</item>
-        <item>More to come...</item>
+        <item>More to come…</item>
     </string-array>
 
     <string name="title_activity_send_stat">Send Stats</string>

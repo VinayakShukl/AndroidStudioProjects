@@ -3,10 +3,13 @@ package com.android.wifitester;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.support.v4.app.NavUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,7 +20,6 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -29,6 +31,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
@@ -42,21 +45,18 @@ public class SendStat extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.statform);
-        // Show the Up button in the action bar.
+
         setupActionBar();
         addListeners();
         setListener();
     }
 
     public void setListener() {
-
-
         buildingSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                 String buildingSelected = parentView.getItemAtPosition(position).toString();
                 selectFloorSpinner(buildingSelected);
-                //Toast.makeText(getApplicationContext(), buildingSelected, Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -68,8 +68,8 @@ public class SendStat extends Activity {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                 String floorSelected = parentView.getItemAtPosition(position).toString();
-                selectIDSpinner(floorSelected, buildingSpinner.getItemAtPosition((int) buildingSpinner.getSelectedItemId()).toString());
-                //Toast.makeText(getApplicationContext(), buildingSelected, Toast.LENGTH_SHORT).show();
+                selectIDSpinner();
+                //selectIDSpinner(floorSelected, buildingSpinner.getItemAtPosition((int) buildingSpinner.getSelectedItemId()).toString());
             }
 
             @Override
@@ -104,9 +104,8 @@ public class SendStat extends Activity {
         }
     }
 
-    public void selectIDSpinner(String floorSelected, String buildingSelected) {
+    public void selectIDSpinner() {
         ArrayAdapter<String> adapter2;
-        //Toast.makeText(getApplicationContext(), floorSelected+buildingSelected, Toast.LENGTH_SHORT).show();
         adapter2 = new ArrayAdapter<String>(
                 getApplicationContext(),
                 R.layout.spinner_item, Arrays.asList(
@@ -121,6 +120,7 @@ public class SendStat extends Activity {
         floorSpinner = (Spinner) findViewById(R.id.floorSpinner);
         IDSpinner = (Spinner) findViewById(R.id.IDSpinner);
         sendButton = (Button) findViewById(R.id.sendButton);
+
         IDSpinner.setScrollContainer(true);
         sendButton.setOnClickListener(new View.OnClickListener() {
 
@@ -135,8 +135,12 @@ public class SendStat extends Activity {
                 alert.setPositiveButton("POST", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        postData();
-                        Toast.makeText(getApplicationContext(), "POSTing...", Toast.LENGTH_SHORT).show();
+                        try {
+                            new POSTAsync().execute(createJSON());
+                            Toast.makeText(getApplicationContext(), "Sending POST", Toast.LENGTH_LONG).show();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
                 });
 
@@ -151,32 +155,16 @@ public class SendStat extends Activity {
         });
     }
 
-    public void postData() {
-        HttpClient httpclient = new DefaultHttpClient();
-        HttpPost httpPost = new HttpPost("http://192.168.52.112:8000/testdata/");
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-
-        StrictMode.setThreadPolicy(policy);
-        try {
-            StringEntity s;
-            try {
-                s = new StringEntity(createJSON().toString());
-                s.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
-                httpPost.setEntity(s);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            HttpResponse response = httpclient.execute(httpPost);
-            //Toast.makeText(getApplicationContext(), response.getStatusLine().getStatusCode(), Toast.LENGTH_LONG).show();
-        } catch (ClientProtocolException e) {
-            // TODO Auto-generated catch block
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-        }
-    }
-
     public JSONObject createJSON() throws JSONException {
         JSONObject json = new JSONObject();
+
+        WifiManager manager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+        WifiInfo info = manager.getConnectionInfo();
+
+        // Device tag
+        JSONObject device = new JSONObject();
+        device.put("Name", android.os.Build.MODEL);
+        device.put("MAC", info.getMacAddress());
 
         // Location tag
         JSONObject location = new JSONObject();
@@ -185,13 +173,14 @@ public class SendStat extends Activity {
         location.put("ID", String.valueOf(IDSpinner.getSelectedItem()));
 
         // Readings tag
-        String BSSID = new String();
-        String SSID = new String();
-        String Strength = new String();
+        String BSSID;
+        String SSID;
+        String Strength;
         JSONObject jsonRead;
         JSONObject jsonReading = new JSONObject();
         Map<String, String> reading;
         ArrayList<Map<String, String>> list = (ArrayList<Map<String, String>>) getIntent().getSerializableExtra("scanResult");
+        assert list != null;
         for (int i = 0; i < list.size(); i++) {
             jsonRead = new JSONObject();
             reading = list.get(i);
@@ -204,9 +193,36 @@ public class SendStat extends Activity {
             jsonReading.put(Integer.toString(i + 1), jsonRead);
         }
 
+        json.put("Device", device);
         json.put("Location", location);
         json.put("Readings", jsonReading);
         return json;
+    }
+
+    private class POSTAsync extends AsyncTask<JSONObject, Void, String> {
+        @Override
+        protected String doInBackground(JSONObject... json) {
+            postData(json[0]);
+            return null;
+        }
+
+        public void postData(JSONObject json) {
+            HttpClient httpclient = new DefaultHttpClient();
+            HttpPost httpPost = new HttpPost("http://prateek.no-ip.biz:8000/testdata/");
+            try {
+                StringEntity s = new StringEntity(json.toString());
+                s.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
+                httpPost.setEntity(s);
+                //HttpResponse response =
+                httpclient.execute(httpPost);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            } catch (ClientProtocolException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
