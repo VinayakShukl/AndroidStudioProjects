@@ -2,6 +2,64 @@
 <resources>
 
     <string name="app_name">wifitester</string>
+    <string name="building_prompt">Enter Stats</string>
+    <string-array name="building_array">
+        <item>Academic</item>
+        <item>Library</item>
+        <item>Mess</item>
+        <item>Boys Hostel</item>
+        <item>Girls Hostel</item>
+        <item>Faculty Housing</item>
+    </string-array>
+
+    <string-array name="academic_floor">
+        <item>Ground</item>
+        <item>1st</item>
+        <item>2nd</item>
+        <item>3rd</item>
+        <item>4th</item>
+        <item>5th</item>
+    </string-array>
+
+    <string-array name="library_floor">
+        <item>Ground</item>
+        <item>1st</item>
+        <item>2nd</item>
+        <item>3rd</item>
+    </string-array>
+
+    <string-array name="temp_vals">
+        <item>Ground</item>
+        <item>1st</item>
+        <item>2nd</item>
+        <item>3rd</item>
+    </string-array>
+
+    <string-array name="temp_IDs">
+        <item>Big Classroom</item>
+        <item>Classroom C-2</item>
+        <item>Classroom C-3</item>
+        <item>Classroom C-4</item>
+        <item>Between All Classrooms</item>
+        <item>Class Block Centre</item>
+        <item>Balcony</item>
+        <item>Walkway Parallel to Big Classroom</item>
+        <item>Walkway Towards Mess</item>
+        <item>BTech Lab 1</item>
+        <item>BTech Lab 2</item>
+        <item>BTech Lab 3</item>
+        <item>EC Lab 1</item>
+        <item>EC Lab 2</item>
+        <item>MTech Lab</item>
+        <item>PhD Lab</item>
+        <item>MUC Lab</item>
+        <item>A Wing Hallway</item>
+        <item>B Wing Hallway</item>
+        <item>Between A Wing and B Wing</item>
+        <item>More to come...</item>
+    </string-array>
+
+    <string name="title_activity_send_stat">Send Stats</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
 

@@ -26,35 +26,41 @@ public class MainActivity extends Activity {
 
     WifiManager mainWifi;
     IntentFilter filter;
+    Intent startSendStat;
     List<ScanResult> scanResults;
     ArrayList<Map<String, String>> list;
     SimpleAdapter adapter;
     ListView listview;
     Button scanButton;
+    Button createStat;
     boolean intentIsRegistered = false;
+
+    public List<ScanResult> getCurrentScanResults() {
+        return scanResults;
+    }
 
     private BroadcastReceiver wifiEventReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.e("DEBUG", "Update received!");
-            if(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION.equals(intent.getAction())) {
+            if (WifiManager.SCAN_RESULTS_AVAILABLE_ACTION.equals(intent.getAction())) {
                 scanResults = mainWifi.getScanResults();
                 list = new ArrayList<Map<String, String>>();
-                list.clear();
-                list = buildData(scanResults);
                 Collections.sort(scanResults, new Comparator<ScanResult>() {
                     @Override
                     public int compare(ScanResult lhs, ScanResult rhs) {
                         return (lhs.level > rhs.level ? -1 : (lhs.level == rhs.level ? 0 : 1));
                     }
                 });
+                list.clear();
+                list = buildData(scanResults);
                 updateList(context);
             }
         }
     };
 
-    private void updateList(Context context){
-        adapter = new SimpleAdapter(context, list, R.layout.listitem, new String[]{"BSSID", "strength", "SSID"}, new int[] {R.id.BSSID, R.id.strength, R.id.SSID});
+    private void updateList(Context context) {
+        adapter = new SimpleAdapter(context, list, R.layout.listitem, new String[]{"BSSID", "Strength", "SSID"}, new int[]{R.id.BSSID, R.id.strength, R.id.SSID});
         listview = (ListView) findViewById(R.id.listView);
         listview.setAdapter(adapter);
         adapter.notifyDataSetChanged();
@@ -72,7 +78,7 @@ public class MainActivity extends Activity {
         HashMap<String, String> item = new HashMap<String, String>();
         item.put("BSSID", BSSID);
         item.put("SSID", SSID);
-        item.put("strength", Integer.toString(level));
+        item.put("Strength", Integer.toString(level));
         return item;
     }
 
@@ -81,17 +87,31 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        scanButton = (Button)findViewById(R.id.buttonScan);
+        scanButton = (Button) findViewById(R.id.buttonScan);
+        createStat = (Button) findViewById(R.id.createStat);
         mainWifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         filter = new IntentFilter();
         filter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
         this.registerReceiver(wifiEventReceiver, filter);
         intentIsRegistered = true;
 
+        if (!mainWifi.isWifiEnabled()) {
+            Log.e("DEBUG", "turning on wifi");
+            Toast.makeText(getApplicationContext(), "Enabling Wifi...",
+                    Toast.LENGTH_LONG).show();
+            mainWifi.setWifiEnabled(true);
+        } else {
+            Log.e("DEBUG", "wifi is on");
+        }
+
+        addListenerOnButton();
+    }
+
+    public void addListenerOnButton() {
         scanButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if (!mainWifi.startScan()) {
-                    Log.e("Error","Scanning could not start");
+                    Log.e("Error", "Scanning could not start");
                     Toast.makeText(getApplicationContext(), "Scanning could not start", Toast.LENGTH_SHORT).show();
                 } else {
                     Log.e("DEBUG", "Scanning has started...");
@@ -99,15 +119,16 @@ public class MainActivity extends Activity {
             }
         });
 
-        if(!mainWifi.isWifiEnabled()){
-            Log.e("DEBUG","turning on wifi");
-            Toast.makeText(getApplicationContext(), "Enabling Wifi...",
-                    Toast.LENGTH_LONG).show();
-            mainWifi.setWifiEnabled(true);
-        } else {
-            Log.e("DEBUG","wifi is on");
-        }
+        createStat.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                startSendStat = new Intent(MainActivity.this, SendStat.class);
+                startSendStat.putExtra("scanResult", list);
+                startActivity(startSendStat);
+            }
+        });
     }
+
+    ;
 
     @Override
     public void onPause() {
