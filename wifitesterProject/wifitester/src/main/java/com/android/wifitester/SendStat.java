@@ -164,6 +164,7 @@ public class SendStat extends Activity {
         // Device tag
         JSONObject device = new JSONObject();
         device.put("Name", android.os.Build.MODEL);
+        device.put("OS Build", android.os.Build.VERSION.RELEASE);
         device.put("MAC", info.getMacAddress());
 
         // Location tag
