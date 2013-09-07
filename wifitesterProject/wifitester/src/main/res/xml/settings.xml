@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="@string/connections">
+
+        <Preference
+            android:title="Note"
+            android:persistent="true"
+            android:key="noteURL"
+            android:summary="To test a newly entered URL, please go back and open settings again" />
+
+        <EditTextPreference
+            android:title="@string/pref_backend"
+            android:summary="@string/pref_backend_summary"
+            android:key="prefBackend"
+            android:defaultValue="@string/defaultURL"
+            android:persistent="true"
+            android:inputType="textNoSuggestions" />
+
+    </PreferenceCategory>
+
+    <Preference
+        android:title="Test URL"
+        android:persistent="false"
+        android:key="testURL"
+        android:summary="Check if backend is reachable" />
+
+    <Preference
+        android:title="Reset URL"
+        android:persistent="false"
+        android:key="resetURL"
+        android:summary="Set default URL - Prateek's" />
+
+</PreferenceScreen>

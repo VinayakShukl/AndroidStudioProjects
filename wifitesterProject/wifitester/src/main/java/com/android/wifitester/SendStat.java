@@ -1,18 +1,16 @@
 package com.android.wifitester;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -20,6 +18,7 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -38,6 +37,7 @@ import java.util.Map;
 
 public class SendStat extends Activity {
 
+    private static final int RESULT_SETTINGS = 1;
     private Spinner buildingSpinner, floorSpinner, IDSpinner;
     private Button sendButton;
 
@@ -46,9 +46,10 @@ public class SendStat extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.statform);
 
-        setupActionBar();
         addListeners();
         setListener();
+
+        PreferenceManager.setDefaultValues(this, R.xml.settings, false);
     }
 
     public void setListener() {
@@ -137,7 +138,7 @@ public class SendStat extends Activity {
                     public void onClick(DialogInterface dialogInterface, int i) {
                         try {
                             new POSTAsync().execute(createJSON());
-                            Toast.makeText(getApplicationContext(), "Sending POST", Toast.LENGTH_LONG).show();
+                            //Toast.makeText(getApplicationContext(), "Sending POST", Toast.LENGTH_SHORT).show();
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -181,7 +182,19 @@ public class SendStat extends Activity {
         JSONObject jsonReading = new JSONObject();
         Map<String, String> reading;
         ArrayList<Map<String, String>> list = (ArrayList<Map<String, String>>) getIntent().getSerializableExtra("scanResult");
-        assert list != null;
+        if (list == null) {
+            AlertDialog.Builder alert = new AlertDialog.Builder(SendStat.this);
+            alert.setTitle("Oops!");
+            alert.setMessage("The scan list is empty!");
+            alert.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+            alert.show();
+            return null;
+        }
         for (int i = 0; i < list.size(); i++) {
             jsonRead = new JSONObject();
             reading = list.get(i);
@@ -203,19 +216,33 @@ public class SendStat extends Activity {
     private class POSTAsync extends AsyncTask<JSONObject, Void, String> {
         @Override
         protected String doInBackground(JSONObject... json) {
+            if (json[0] == null) {
+                Log.e("DEBUG", "Empty JSON!");
+                return null;
+            }
             postData(json[0]);
             return null;
         }
 
+        int code;
+
         public void postData(JSONObject json) {
             HttpClient httpclient = new DefaultHttpClient();
-            HttpPost httpPost = new HttpPost("http://prateek.no-ip.biz:8000/testdata/");
+            SharedPreferences sharedPrefs = PreferenceManager
+                    .getDefaultSharedPreferences(getApplicationContext());
+            String URL = sharedPrefs.getString("prefBackend", "NULL");
+            if (URL.equals("NULL")) {
+                URL = String.valueOf(R.string.defaultURL);
+            }
+            HttpPost httpPost = new HttpPost(URL);
             try {
                 StringEntity s = new StringEntity(json.toString());
                 s.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
                 httpPost.setEntity(s);
-                //HttpResponse response =
-                httpclient.execute(httpPost);
+                HttpResponse response = httpclient.execute(httpPost);
+                code = response.getStatusLine().getStatusCode();
+                //Toast.makeText(getApplicationContext(), Integer.toString(code), Toast.LENGTH_SHORT).show();
+                Log.e("DEBUG", "Response for POST " + Integer.toString(code));
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             } catch (ClientProtocolException e) {
@@ -224,33 +251,12 @@ public class SendStat extends Activity {
                 e.printStackTrace();
             }
         }
-    }
 
-    /**
-     * Set up the {@link android.app.ActionBar}, if the API is available.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    private void setupActionBar() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            getActionBar().setDisplayHomeAsUpEnabled(true);
+        @Override
+        protected void onPostExecute(String result) {
+            // TODO Auto-generated method stub
+            super.onPostExecute(result);
+            Toast.makeText(getApplicationContext(), "Return code: " + Integer.toString(code), Toast.LENGTH_SHORT).show();
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.send_stat, menu);
-        return true;
-    }
-
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                NavUtils.navigateUpFromSameTask(this);
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 }

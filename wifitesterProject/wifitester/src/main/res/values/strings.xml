@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">wifitester</string>
+    <string name="app_name">WifiTester</string>
+    <string name="menu_settings">Settings</string>
     <string name="building_prompt">Enter Stats</string>
+    <string name="pref_backend">Set Backend</string>
+    <string name="pref_backend_summary">Choose where to POST</string>
+    <string name="connections">Connections</string>
+
+    <string name="defaultURL">http://prateek.no-ip.biz:8000/testdata/</string>
+
     <string-array name="building_array">
         <item>Academic</item>
         <item>Library</item>
