@@ -10,6 +10,13 @@
 
     <string name="defaultURL">http://prateek.no-ip.biz:8000/testdata/</string>
 
+
+    <string-array name="crowd_strength">
+        <item>Low</item>
+        <item>Medium</item>
+        <item>High</item>
+    </string-array>
+
     <string-array name="building_array">
         <item>Academic</item>
         <item>Library</item>

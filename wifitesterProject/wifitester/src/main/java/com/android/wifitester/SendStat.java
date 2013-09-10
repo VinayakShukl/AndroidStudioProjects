@@ -38,7 +38,7 @@ import java.util.Map;
 public class SendStat extends Activity {
 
     private static final int RESULT_SETTINGS = 1;
-    private Spinner buildingSpinner, floorSpinner, IDSpinner;
+    private Spinner crowdSpinner, buildingSpinner, floorSpinner, IDSpinner;
     private Button sendButton;
 
     @Override
@@ -50,6 +50,49 @@ public class SendStat extends Activity {
         setListener();
 
         PreferenceManager.setDefaultValues(this, R.xml.settings, false);
+    }
+
+    public void addListeners() {
+
+        crowdSpinner = (Spinner) findViewById(R.id.crowdSpinner);
+        buildingSpinner = (Spinner) findViewById(R.id.buildingSpinner);
+        floorSpinner = (Spinner) findViewById(R.id.floorSpinner);
+        IDSpinner = (Spinner) findViewById(R.id.IDSpinner);
+        sendButton = (Button) findViewById(R.id.sendButton);
+
+        IDSpinner.setScrollContainer(true);
+        sendButton.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder alert = new AlertDialog.Builder(SendStat.this);
+                alert.setTitle("Confirm Submit");
+                alert.setMessage("Crowd Strength: " + String.valueOf(crowdSpinner.getSelectedItem()) +
+                        "\nBuilding: " + String.valueOf(buildingSpinner.getSelectedItem()) +
+                        "\nFloor: " + String.valueOf(floorSpinner.getSelectedItem()) +
+                        "\nID: " + String.valueOf(IDSpinner.getSelectedItem())
+                );
+                alert.setPositiveButton("POST", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        try {
+                            new POSTAsync().execute(createJSON());
+                            //Toast.makeText(getApplicationContext(), "Sending POST", Toast.LENGTH_SHORT).show();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
+                alert.setNeutralButton("CANCEL", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+                alert.show();
+            }
+        });
     }
 
     public void setListener() {
@@ -65,12 +108,25 @@ public class SendStat extends Activity {
             }
         });
 
+        // define custom style on building and crowd spinners
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                getApplicationContext(),
+                R.layout.spinner_item, Arrays.asList(
+                getResources().getStringArray(R.array.crowd_strength)));
+        adapter.setDropDownViewResource(R.layout.spinner_item);
+        crowdSpinner.setAdapter(adapter);
+
+        adapter = new ArrayAdapter<String>(
+                getApplicationContext(),
+                R.layout.spinner_item, Arrays.asList(
+                getResources().getStringArray(R.array.building_array)));
+        adapter.setDropDownViewResource(R.layout.spinner_item);
+        buildingSpinner.setAdapter(adapter);
+
         floorSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                String floorSelected = parentView.getItemAtPosition(position).toString();
                 selectIDSpinner();
-                //selectIDSpinner(floorSelected, buildingSpinner.getItemAtPosition((int) buildingSpinner.getSelectedItemId()).toString());
             }
 
             @Override
@@ -115,52 +171,15 @@ public class SendStat extends Activity {
         IDSpinner.setAdapter(adapter2);
     }
 
-    public void addListeners() {
-
-        buildingSpinner = (Spinner) findViewById(R.id.buildingSpinner);
-        floorSpinner = (Spinner) findViewById(R.id.floorSpinner);
-        IDSpinner = (Spinner) findViewById(R.id.IDSpinner);
-        sendButton = (Button) findViewById(R.id.sendButton);
-
-        IDSpinner.setScrollContainer(true);
-        sendButton.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                AlertDialog.Builder alert = new AlertDialog.Builder(SendStat.this);
-                alert.setTitle("Confirm Submit");
-                alert.setMessage("Building: " + String.valueOf(buildingSpinner.getSelectedItem()) +
-                        "\nFloor: " + String.valueOf(floorSpinner.getSelectedItem()) +
-                        "\nID: " + String.valueOf(IDSpinner.getSelectedItem())
-                );
-                alert.setPositiveButton("POST", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        try {
-                            new POSTAsync().execute(createJSON());
-                            //Toast.makeText(getApplicationContext(), "Sending POST", Toast.LENGTH_SHORT).show();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-
-                alert.setNeutralButton("CANCEL", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-                alert.show();
-            }
-        });
-    }
-
     public JSONObject createJSON() throws JSONException {
         JSONObject json = new JSONObject();
 
         WifiManager manager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         WifiInfo info = manager.getConnectionInfo();
+
+        //  Misc tag
+        //JSONObject misc = new JSONObject();
+        json.put("Time", System.currentTimeMillis() / 1000L);
 
         // Device tag
         JSONObject device = new JSONObject();
@@ -173,6 +192,7 @@ public class SendStat extends Activity {
         location.put("Building", String.valueOf(buildingSpinner.getSelectedItem()));
         location.put("Floor", String.valueOf(floorSpinner.getSelectedItem()));
         location.put("ID", String.valueOf(IDSpinner.getSelectedItem()));
+        location.put("Occupancy", String.valueOf(crowdSpinner.getSelectedItem()));
 
         // Readings tag
         String BSSID;
@@ -207,6 +227,7 @@ public class SendStat extends Activity {
             jsonReading.put(Integer.toString(i + 1), jsonRead);
         }
 
+        //json.put("Time", misc);
         json.put("Device", device);
         json.put("Location", location);
         json.put("Readings", jsonReading);
