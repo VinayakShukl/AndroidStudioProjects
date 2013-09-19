@@ -42,6 +42,24 @@
         <item>3rd</item>
     </string-array>
 
+    <string-array name="boyshostel_floor">
+        <item>Ground</item>
+        <item>1st</item>
+        <item>2nd</item>
+        <item>3rd</item>
+        <item>4th</item>
+        <item>5th</item>
+        <item>6th</item>
+    </string-array>
+
+    <string-array name="girlshostel_floor">
+        <item>Ground</item>
+        <item>1st</item>
+        <item>2nd</item>
+        <item>3rd</item>
+        <item>4th</item>
+    </string-array>
+
     <string-array name="temp_vals">
         <item>Ground</item>
         <item>1st</item>
@@ -71,6 +89,21 @@
         <item>B Wing Hallway</item>
         <item>Between A Wing and B Wing</item>
         <item>More to come…</item>
+    </string-array>
+
+    <string-array name="BoysHostel_IDs">
+        <item>A Wing</item>
+        <item>B Wing</item>
+        <item>C Wing Farther End</item>
+        <item>C Wing Start</item>
+        <item>Common Room</item>
+    </string-array>
+
+    <string-array name="GirlsHostel_IDs">
+        <item>A Wing</item>
+        <item>B Wing</item>
+        <item>C Wing</item>
+        <item>Common Room</item>
     </string-array>
 
     <string name="title_activity_send_stat">Send Stats</string>
