@@ -96,14 +96,12 @@
         <item>B Wing</item>
         <item>C Wing Farther End</item>
         <item>C Wing Start</item>
-        <item>Common Room</item>
     </string-array>
 
     <string-array name="GirlsHostel_IDs">
         <item>A Wing</item>
         <item>B Wing</item>
         <item>C Wing</item>
-        <item>Common Room</item>
     </string-array>
 
     <string name="title_activity_send_stat">Send Stats</string>
