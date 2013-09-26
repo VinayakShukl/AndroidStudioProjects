@@ -8,7 +8,7 @@
     <string name="pref_backend_summary">Choose where to POST</string>
     <string name="connections">Connections</string>
 
-    <string name="defaultURL">http://prateek.no-ip.biz:8000/testdata/</string>
+    <string name="defaultURL">http://192.168.52.112:8000/testdata/</string>
 
 
     <string-array name="crowd_strength">
