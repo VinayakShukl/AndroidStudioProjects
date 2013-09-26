@@ -23,7 +23,6 @@
         <item>Mess</item>
         <item>Boys Hostel</item>
         <item>Girls Hostel</item>
-        <item>Faculty Housing</item>
     </string-array>
 
     <string-array name="academic_floor">
@@ -36,6 +35,13 @@
     </string-array>
 
     <string-array name="library_floor">
+        <item>Ground</item>
+        <item>1st</item>
+        <item>2nd</item>
+        <item>3rd</item>
+    </string-array>
+
+    <string-array name="mess_floor">
         <item>Ground</item>
         <item>1st</item>
         <item>2nd</item>
@@ -60,47 +66,77 @@
         <item>4th</item>
     </string-array>
 
-    <string-array name="temp_vals">
-        <item>Ground</item>
-        <item>1st</item>
-        <item>2nd</item>
-        <item>3rd</item>
-    </string-array>
-
-    <string-array name="temp_IDs">
-        <item>Big Classroom</item>
-        <item>Classroom C-2</item>
-        <item>Classroom C-3</item>
-        <item>Classroom C-4</item>
+    <string-array name="Academic_Ground_IDs">
+        <item>C01</item>
+        <item>C02</item>
+        <item>C03</item>
         <item>Between All Classrooms</item>
-        <item>Class Block Centre</item>
-        <item>Balcony</item>
-        <item>Walkway Parallel to Big Classroom</item>
-        <item>Walkway Towards Mess</item>
-        <item>BTech Lab 1</item>
-        <item>BTech Lab 2</item>
-        <item>BTech Lab 3</item>
-        <item>EC Lab 1</item>
-        <item>EC Lab 2</item>
-        <item>MTech Lab</item>
-        <item>PhD Lab</item>
-        <item>MUC Lab</item>
-        <item>A Wing Hallway</item>
-        <item>B Wing Hallway</item>
-        <item>Between A Wing and B Wing</item>
-        <item>More to come…</item>
+        <item>Balcony Area</item>
+        <item>Classroom Walkway</item>
+        <item>Mess Walkway</item>
+        <item>Cafeteria</item>
+        <item>Cafeteria AC</item>
+        <item>Classroom Walkway</item>
+        <item>Mess Walkway</item>
     </string-array>
 
-    <string-array name="BoysHostel_IDs">
+    <string-array name="Academic_First_IDs">
+        <item>C11</item>
+        <item>C12</item>
+        <item>C13</item>
+        <item>Between All Classrooms</item>
+        <item>Balcony Area</item>
+        <item>Large Open Balcony</item>
+        <item>Classroom Walkway</item>
+        <item>Mess Walkway</item>
         <item>A Wing</item>
         <item>B Wing</item>
-        <item>C Wing Farther End</item>
-        <item>C Wing Start</item>
-        <item>Common Room</item>
+        <item>Between A and B</item>
     </string-array>
 
-    <string-array name="GirlsHostel_IDs">
+    <string-array name="Academic_Second_IDs">
+        <item>C21</item>
+        <item>C22</item>
+        <item>C23</item>
+        <item>C24</item>
+        <item>Between All Classrooms</item>
+        <item>Balcony Area</item>
+        <item>Large Open Balcony</item>
+        <item>Classroom Walkway</item>
+        <item>Mess Walkway</item>
         <item>A Wing</item>
+        <item>B Wing</item>
+        <item>Between A and B</item>
+    </string-array>
+
+    <string-array name="Academic_Third_IDs">
+        <item>A Wing</item>
+        <item>B Wing</item>
+        <item>Between A and B</item>
+    </string-array>
+
+    <string-array name="Academic_Fourth_IDs">
+        <item>A Wing</item>
+        <item>B Wing</item>
+        <item>Between A and B</item>
+    </string-array>
+
+    <string-array name="Academic_Fifth_IDs">
+        <item>A Wing</item>
+        <item>B Wing</item>
+        <item>Between A and B</item>
+    </string-array>
+
+    <string-array name="Library_IDs">
+        <item></item>
+    </string-array>
+
+    <string-array name="Mess_IDs">
+        <item></item>
+    </string-array>
+
+    <string-array name="Hostel_IDs">
+    <item>A Wing</item>
         <item>B Wing</item>
         <item>C Wing</item>
         <item>Common Room</item>

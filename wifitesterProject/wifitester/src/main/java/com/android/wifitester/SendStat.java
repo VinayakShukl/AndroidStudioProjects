@@ -140,71 +140,58 @@ public class SendStat extends Activity {
 
     public void selectFloorSpinner(String buildingSelected) {
         ArrayAdapter<String> adapter2;
+        String[] buildingString = new String[25];
         if (buildingSelected.compareTo("Academic") == 0) {
-            adapter2 = new ArrayAdapter<String>(
-                    getApplicationContext(),
-                    R.layout.spinner_item, Arrays.asList(
-                    getResources().getStringArray(R.array.academic_floor)));
-            adapter2.setDropDownViewResource(R.layout.spinner_item);
-            floorSpinner.setAdapter(adapter2);
+            buildingString = getResources().getStringArray(R.array.academic_floor);
         } else if (buildingSelected.compareTo("Library") == 0) {
-            adapter2 = new ArrayAdapter<String>(
-                    getApplicationContext(),
-                    R.layout.spinner_item, Arrays.asList(
-                    getResources().getStringArray(R.array.library_floor)));
-            adapter2.setDropDownViewResource(R.layout.spinner_item);
-            floorSpinner.setAdapter(adapter2);
+            buildingString = getResources().getStringArray(R.array.library_floor);
+        } else if (buildingSelected.compareTo("Mess") == 0) {
+            buildingString = getResources().getStringArray(R.array.mess_floor);
         } else if (buildingSelected.compareTo("Boys Hostel") == 0) {
-            adapter2 = new ArrayAdapter<String>(
-                    getApplicationContext(),
-                    R.layout.spinner_item, Arrays.asList(
-                    getResources().getStringArray(R.array.boyshostel_floor)));
-            adapter2.setDropDownViewResource(R.layout.spinner_item);
-            floorSpinner.setAdapter(adapter2);
+            buildingString = getResources().getStringArray(R.array.boyshostel_floor);
+        } else if (buildingSelected.compareTo("Girls Hostel") == 0) {
+            buildingString = getResources().getStringArray(R.array.girlshostel_floor);
         }
-        else if (buildingSelected.compareTo("Girls Hostel") == 0) {
-            adapter2 = new ArrayAdapter<String>(
-                    getApplicationContext(),
-                    R.layout.spinner_item, Arrays.asList(
-                    getResources().getStringArray(R.array.girlshostel_floor)));
-            adapter2.setDropDownViewResource(R.layout.spinner_item);
-            floorSpinner.setAdapter(adapter2);
-        }else {
-            adapter2 = new ArrayAdapter<String>(
-                    getApplicationContext(),
-                    R.layout.spinner_item, Arrays.asList(
-                    getResources().getStringArray(R.array.temp_vals)));
-            adapter2.setDropDownViewResource(R.layout.spinner_item);
-            floorSpinner.setAdapter(adapter2);
-        }
+        adapter2 = new ArrayAdapter<String>(
+                getApplicationContext(),
+                R.layout.spinner_item, Arrays.asList(buildingString));
+        adapter2.setDropDownViewResource(R.layout.spinner_item);
+        floorSpinner.setAdapter(adapter2);
     }
 
     public void selectIDSpinner(String buildingSelected, String floorSelected) {    //Floor reserved for future
         ArrayAdapter<String> adapter2;
-        if (buildingSelected.compareTo("Girls Hostel") == 0){
-            adapter2 = new ArrayAdapter<String>(
-                    getApplicationContext(),
-                    R.layout.spinner_item, Arrays.asList(
-                    getResources().getStringArray(R.array.GirlsHostel_IDs)));
-            adapter2.setDropDownViewResource(R.layout.spinner_item);
-            IDSpinner.setAdapter(adapter2);
+        String[] IDString = new String[25];
+
+        if (buildingSelected.compareTo("Academic") == 0) {
+            if (floorSelected.compareTo("Ground") == 0) {
+                IDString = getResources().getStringArray(R.array.Academic_Ground_IDs);
+            } else if (floorSelected.compareTo("1st") == 0) {
+                IDString = getResources().getStringArray(R.array.Academic_First_IDs);
+            } else if (floorSelected.compareTo("2nd") == 0) {
+                IDString = getResources().getStringArray(R.array.Academic_Second_IDs);
+            } else if (floorSelected.compareTo("3rd") == 0) {
+                IDString = getResources().getStringArray(R.array.Academic_Third_IDs);
+            } else if (floorSelected.compareTo("4th") == 0) {
+                IDString = getResources().getStringArray(R.array.Academic_Fourth_IDs);
+            } else if (floorSelected.compareTo("5th") == 0) {
+                IDString = getResources().getStringArray(R.array.Academic_Fifth_IDs);
+            }
+        } else if (buildingSelected.compareTo("Library") == 0) {
+            IDString = getResources().getStringArray(R.array.Library_IDs);
+        } else if (buildingSelected.compareTo("Mess") == 0) {
+            IDString = getResources().getStringArray(R.array.Mess_IDs);
+        } else if (buildingSelected.compareTo("Girls Hostel") == 0) {
+            IDString = getResources().getStringArray(R.array.Hostel_IDs);
+        } else if (buildingSelected.compareTo("Boys Hostel") == 0) {
+            IDString = getResources().getStringArray(R.array.Hostel_IDs);
         }
-        else if (buildingSelected.compareTo("Boys Hostel") == 0){
-            adapter2 = new ArrayAdapter<String>(
-                    getApplicationContext(),
-                    R.layout.spinner_item, Arrays.asList(
-                    getResources().getStringArray(R.array.BoysHostel_IDs)));
-            adapter2.setDropDownViewResource(R.layout.spinner_item);
-            IDSpinner.setAdapter(adapter2);
-        }
-        else{
-            adapter2 = new ArrayAdapter<String>(
-                    getApplicationContext(),
-                    R.layout.spinner_item, Arrays.asList(
-                    getResources().getStringArray(R.array.temp_IDs)));
-            adapter2.setDropDownViewResource(R.layout.spinner_item);
-            IDSpinner.setAdapter(adapter2);
-        }
+        adapter2 = new ArrayAdapter<String>(
+                getApplicationContext(),
+                R.layout.spinner_item, Arrays.asList(
+                IDString));
+        adapter2.setDropDownViewResource(R.layout.spinner_item);
+        IDSpinner.setAdapter(adapter2);
     }
 
     public JSONObject createJSON() throws JSONException {
