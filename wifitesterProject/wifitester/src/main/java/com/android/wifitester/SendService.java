@@ -165,7 +165,6 @@ public class SendService extends Service {
         // Readings tag
         String BSSID;
         String Strength;
-        JSONObject jsonRead;
         JSONObject jsonReading = new JSONObject();
         Map<String, String> reading;
         ArrayList<Map<String, String>> list = this.list;

@@ -114,13 +114,6 @@ public class SendStat extends Activity {
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(
                 getApplicationContext(),
                 R.layout.spinner_item, Arrays.asList(
-                getResources().getStringArray(R.array.crowd_strength)));
-        adapter.setDropDownViewResource(R.layout.spinner_item);
-        crowdSpinner.setAdapter(adapter);
-
-        adapter = new ArrayAdapter<String>(
-                getApplicationContext(),
-                R.layout.spinner_item, Arrays.asList(
                 getResources().getStringArray(R.array.building_array)));
         adapter.setDropDownViewResource(R.layout.spinner_item);
         buildingSpinner.setAdapter(adapter);
