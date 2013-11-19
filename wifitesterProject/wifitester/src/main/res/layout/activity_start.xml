@@ -27,17 +27,22 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/floorSpinner" />
 
-    <Spinner
-        android:id="@+id/crowdSpinner"
-        android:layout_width="match_parent"
+    <Button
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/IDSpinner" />
+        android:text="Start"
+        android:id="@+id/startButton"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
+
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Send"
-        android:id="@+id/sendButton"
+        android:text="Stop"
+        android:id="@+id/stopButton"
+        android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true" />
 
