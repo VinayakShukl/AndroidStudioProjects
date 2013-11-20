@@ -1,12 +1,13 @@
 package com.android.wifitester;
 
 import android.app.Activity;
-import android.content.ComponentName;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
+import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -14,9 +15,8 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.android.wifitester.SendService.LocalServiceBinder;
-
 import java.util.Arrays;
+import java.util.Calendar;
 
 public class StartActivity extends Activity {
 
@@ -24,26 +24,15 @@ public class StartActivity extends Activity {
     private Button startButton, stopButton;
     private String buildingSelected = "";
     private String floorSelected = "";
-    private SendService myService;
-    private boolean isBound;
+
+    private Calendar cal;
     private Intent intent;
+    private PendingIntent pintent;
+    private static AlarmManager alarm;
 
-    private ServiceConnection myConnection = new ServiceConnection() {
+    private ServiceReceiver myRecv;
 
-        public void onServiceConnected(ComponentName className,
-                                       IBinder service) {
-            System.out.println("Connected\n");
-            LocalServiceBinder binder = (LocalServiceBinder) service;
-            myService = binder.getService();
-            isBound = true;
-        }
-
-        public void onServiceDisconnected(ComponentName arg0) {
-            System.out.println("Disconnected\n");
-            isBound = false;
-        }
-
-    };
+    private static int postCount = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +51,25 @@ public class StartActivity extends Activity {
         //bindService(intent, myConnection, Context.BIND_AUTO_CREATE);
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        try {
+            unregisterReceiver(myRecv);
+        } catch (IllegalArgumentException e) {
+            System.out.println("ERROR: Receiver was already unregistered...\n");
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        try {
+            unregisterReceiver(myRecv);
+        } catch (IllegalArgumentException e) {
+            System.out.println("ERROR: Receiver was already unregistered...\n");
+        }
+    }
 
     public void addListeners() {
         buildingSpinner = (Spinner) findViewById(R.id.buildingSpinner);
@@ -72,7 +80,18 @@ public class StartActivity extends Activity {
         IDSpinner.setScrollContainer(true);
 
         System.out.println("MAJOR TOGGLE");
-        stopButton.setEnabled(false);
+        //stopButton.setEnabled(false);
+    }
+
+
+    private class ServiceReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            postCount++;
+            System.out.println("Count updated: " + postCount);
+        }
     }
 
     public void setListeners() {
@@ -113,16 +132,26 @@ public class StartActivity extends Activity {
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                postCount = 0;
+
+                cal = Calendar.getInstance();
+                intent = new Intent(StartActivity.this, SendService.class);
                 intent.putExtra("building", String.valueOf(buildingSpinner.getSelectedItem()));
                 intent.putExtra("floor", String.valueOf(floorSpinner.getSelectedItem()));
                 intent.putExtra("id", String.valueOf(IDSpinner.getSelectedItem()));
-                if (!isBound) {
-                    System.out.println("Binding...Wait for bounded.\n");
-                    bindService(intent, myConnection, Context.BIND_AUTO_CREATE);
-                }
-                startService(intent);
-                startButton.setEnabled(false);
-                stopButton.setEnabled(true);
+                pintent = PendingIntent.getService(StartActivity.this, 0, intent, 0);
+
+                myRecv = new ServiceReceiver();
+                IntentFilter iFilter = new IntentFilter();
+                iFilter.addAction(SendService.MY_ACTION);
+                registerReceiver(myRecv, iFilter);
+
+                alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+                alarm.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), 5 * 1000, pintent);
+
+                //startButton.setEnabled(false);
+                //stopButton.setEnabled(true);
             }
         });
 
@@ -130,17 +159,27 @@ public class StartActivity extends Activity {
         stopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (isBound) {
-                    System.out.println("Stopping\n");
-                    isBound = false;
+                System.out.println("Stopping\n");
 
-                    Toast.makeText(StartActivity.this, "POST's sent: " + Integer.toString(myService.getCount()), Toast.LENGTH_LONG).show();
+                intent = new Intent(StartActivity.this, SendService.class);
+                intent.putExtra("building", String.valueOf(buildingSpinner.getSelectedItem()));
+                intent.putExtra("floor", String.valueOf(floorSpinner.getSelectedItem()));
+                intent.putExtra("id", String.valueOf(IDSpinner.getSelectedItem()));
+                pintent = PendingIntent.getService(StartActivity.this, 0, intent, 0);
 
-                    unbindService(myConnection);
-                    stopService(intent);
-                    stopButton.setEnabled(false);
-                    startButton.setEnabled(true);
+                alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+                alarm.cancel(pintent);
+                pintent.cancel();
+
+                try {
+                    unregisterReceiver(myRecv);
+                } catch (IllegalArgumentException e) {
+                    System.out.println("ERROR: REceiver was already unregistered...\n");
                 }
+                Toast.makeText(getApplicationContext(), Integer.toString(postCount), Toast.LENGTH_LONG).show();
+
+                //stopButton.setEnabled(false);
+                //startButton.setEnabled(true);
             }
         });
     }

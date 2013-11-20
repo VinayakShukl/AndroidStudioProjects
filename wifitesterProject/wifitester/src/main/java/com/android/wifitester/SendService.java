@@ -42,7 +42,8 @@ public class SendService extends Service {
     IntentFilter filter;
     WifiManager mainWifi;
     private ArrayList<Map<String, String>> list;
-    private int POSTcnt;
+
+    final static String MY_ACTION = "MY_ACTION";
 
     private BroadcastReceiver wifiEventReceiver = new BroadcastReceiver() {
         @Override
@@ -53,7 +54,6 @@ public class SendService extends Service {
                 list = new ArrayList<Map<String, String>>();
                 list.clear();
                 list = buildData(scanResults);
-                //System.out.println(list.toString());
                 sendData();
             }
         }
@@ -81,9 +81,6 @@ public class SendService extends Service {
         return myBinder;
     }
 
-    public int getCount() {
-        return POSTcnt;
-    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -91,7 +88,6 @@ public class SendService extends Service {
         building = intent.getStringExtra("building");
         floor = intent.getStringExtra("floor");
         ID = intent.getStringExtra("id");
-        POSTcnt = 0;
 
         mainWifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         filter = new IntentFilter();
@@ -99,8 +95,7 @@ public class SendService extends Service {
         this.registerReceiver(wifiEventReceiver, filter);
         System.out.println("Filter registered...");
 
-        startSending();
-
+        mainWifi.startScan();
         return 0;
     }
 
@@ -108,27 +103,14 @@ public class SendService extends Service {
     @Override
     public void onDestroy() {
         System.out.println("@Service: Being destroyed...");
-        unregisterReceiver(wifiEventReceiver);
-    }
-
-
-    public void startSending() {
-        new Thread(new Runnable() {
-            public void run() {
-                while (true) {
-                    mainWifi.startScan();
-                    try {
-                        Thread.sleep(10 * 1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }).start();
+        //unregisterReceiver(wifiEventReceiver);
     }
 
 
     public void sendData() {
+        this.unregisterReceiver(wifiEventReceiver);
+
+        System.out.println("Unregistered");
         System.out.println(list.toString());
         JSONObject json = new JSONObject();
         try {
@@ -142,6 +124,8 @@ public class SendService extends Service {
             System.out.println(json.toString());
             new POSTAsync().execute(json);
         }
+
+        stopSelf();
     }
 
     private JSONObject createJSON() throws JSONException {
@@ -218,7 +202,9 @@ public class SendService extends Service {
                 HttpResponse response = httpclient.execute(httpPost);
                 code = response.getStatusLine().getStatusCode();
                 if (code == 200) {
-                    POSTcnt++;
+                    Intent i = new Intent();
+                    i.setAction(MY_ACTION);
+                    sendBroadcast(i);
                 }
                 //resLoc = EntityUtils.toString(response.getEntity());
                 Log.e("DEBUG", "Response code for POST " + Integer.toString(code));
