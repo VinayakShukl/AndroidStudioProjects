@@ -1,0 +1,33 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#E5E4E2"
+    android:paddingTop="16dp"
+    android:paddingBottom="16dp"
+    tools:context=".UserCheck">
+
+    <Button
+        android:id="@+id/btn1"
+        android:layout_width="250dp"
+        android:layout_height="100dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="125dp"
+        android:text="New User"
+        android:textSize="30dp"
+        android:background="#78866B"/>
+
+
+    <Button
+        android:id="@+id/btn2"
+        android:layout_width="250dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="50dp"
+        android:layout_below="@+id/btn1"
+        android:layout_centerHorizontal="true"
+        android:text="Existing User\n(New Device)"
+        android:textSize="30dp"
+        android:background="#78866B"/>
+
+
+</RelativeLayout>
