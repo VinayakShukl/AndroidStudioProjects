@@ -1,0 +1,143 @@
+package android.wifind;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.ViewConfiguration;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
+public class MainActivity extends ActionBarActivity {
+
+
+    ArrayList<Friend> frndarr = new ArrayList<Friend>();
+    FriendAdapter frndadp;
+    FriendListFrag frndfrag;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        // Set up the action bar.
+        final ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayShowTitleEnabled(false);
+
+        try {
+            ViewConfiguration config = ViewConfiguration.get(this);
+            Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
+            if(menuKeyField != null) {
+                menuKeyField.setAccessible(true);
+                menuKeyField.setBoolean(config, false);
+            }
+        } catch (Exception ex) {
+            // Ignore
+        }
+
+        frndarr.add(new Friend("Romil Bhardwaj", "Acad Block 3rd Floor"));
+        frndarr.add(new Friend("Jatin Sindhu", "Library 1st Floor"));
+        frndarr.add(new Friend("Ankit Agarwal", "Library 1st Floor"));
+        frndarr.add(new Friend("Vinayak Shukl", "Acad Block CCD"));
+        frndarr.add(new Friend("Prateek Malhotra", "Acad Block 1st Floor"));
+
+        frndfrag= new FriendListFrag(0, this, frndarr);
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.container, frndfrag)
+                    .commit();
+        }
+
+        frndadp=frndfrag.getAdapter();
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        System.out.println("Inflating");
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        System.out.println(item.getItemId());
+        System.out.println("Onoptions");
+        frndadp=frndfrag.getAdapter();
+        switch (item.getItemId()) {
+            case R.id.action_refresh:
+                System.out.println("Refreshing");
+                return true;
+            case R.id.sortmenu_sortname:
+                System.out.println("NameSort");
+                Collections.sort(frndarr, new Comparator<Friend>() {
+                    @Override
+                    public int compare(Friend friend, Friend friend2) {
+                        return friend.name.compareTo(friend2.name);
+                    }
+                });
+                frndadp.notifyDataSetChanged();
+                return true;
+            case R.id.sortmenu_sortloc:
+                System.out.println("LocSort");
+                Collections.sort(frndarr, new Comparator<Friend>() {
+                    @Override
+                    public int compare(Friend friend, Friend friend2) {
+                        return friend.location.compareTo(friend2.location);
+                    }
+                });
+                frndadp.notifyDataSetChanged();
+                return true;
+            case R.id.action_addfriend:
+                System.out.println("AddFrnd");
+                Intent addfriendint = new Intent(this, AddFriend.class);
+                startActivity(addfriendint);
+                return true;
+            case R.id.action_pendingrequests:
+                System.out.println("PendingFrnds");
+                Intent pendingfriendint = new Intent(this, PendingRequests.class);
+                startActivity(pendingfriendint);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * A placeholder fragment containing a simple view.
+     */
+    /*public class FriendListFragment extends ListFragment {
+        private Activity activity;
+        private static final String ARG_SECTION_NUMBER = "section_number";
+
+        public FriendListFragment (int sectionNumber, Activity activity) {
+            Bundle args = new Bundle();
+            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
+            this.setArguments(args);
+            this.activity=activity;
+        }
+
+        public FriendListFragment() {
+
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
+            frndadp = new FriendAdapter(inflater.getContext(), frndarr);
+
+            setListAdapter(frndadp);
+
+            return super.onCreateView(inflater, container, savedInstanceState);
+        }
+    }*/
+
+}

@@ -1,24 +1,21 @@
 package android.wifind;
 
 import android.annotation.TargetApi;
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.Menu;
 import android.view.View;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -29,7 +26,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
-import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
 import java.net.URI;
@@ -77,11 +73,11 @@ public class AskEmailNew extends Activity {
     public class Regs extends AsyncTask<Void, Void, Boolean> {
 
         int code;
-        ProgressDialog pd=null;
+        ProgressDialog pd = null;
 
         @Override
-        protected void onPreExecute(){
-            pd=new ProgressDialog(AskEmailNew.this);
+        protected void onPreExecute() {
+            pd = new ProgressDialog(AskEmailNew.this);
             pd.setMessage("Loading...");
             pd.show();
         }
@@ -92,13 +88,13 @@ public class AskEmailNew extends Activity {
             try {
                 HttpGet senddata = new HttpGet("http://192.168.52.112:8000/new_user/?mac=" + mac_address + "&email=" + email_address);
                 HttpParams parameters = new BasicHttpParams();
-                int timeout = 100000;
-                HttpConnectionParams.setConnectionTimeout(parameters,timeout);
+                int timeout = 15000;
+                HttpConnectionParams.setConnectionTimeout(parameters, timeout);
                 HttpResponse response = new DefaultHttpClient(parameters).execute(senddata);
                 code = response.getStatusLine().getStatusCode();
 
                 if (code == 200) {
-                        return true;
+                    return true;
                 }
 
 
@@ -136,8 +132,8 @@ public class AskEmailNew extends Activity {
                     URI uri = new URI(
                             "http",
                             "192.168.52.112:8000",
-                            "/confirm_code",
-                            "?code=" + strings[0] + "&mac=" + mac_address + "&email=" + email_address + "&device=" + android.os.Build.MODEL + "&os=" + android.os.Build.VERSION.RELEASE,
+                            "/confirm_code/",
+                            "code=" + strings[0] + "&mac=" + mac_address + "&email=" + email_address + "&device=" + android.os.Build.MODEL + "&os=" + android.os.Build.VERSION.RELEASE,
                             null);
                     request = uri.toASCIIString();
                 } catch (URISyntaxException e) {
@@ -145,11 +141,11 @@ public class AskEmailNew extends Activity {
                 }
                 HttpGet senddata = new HttpGet(request);
                 HttpParams parameters = new BasicHttpParams();
-                int timeout = 15*1000;
+                int timeout = 15 * 1000;
                 HttpConnectionParams.setConnectionTimeout(parameters, timeout);
                 HttpResponse response = new DefaultHttpClient(parameters).execute(senddata);
                 code = response.getStatusLine().getStatusCode();
-          
+
                 if (code == 200) {
                     String[] args = {email_address, mac_address};
                     loginTasks.storeEmailMAC(AskEmailNew.this, args);
@@ -216,7 +212,8 @@ public class AskEmailNew extends Activity {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 //takes you to the homepage
-                Toast.makeText(getApplicationContext(), "This takes you to the Home Activity", Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(AskEmailNew.this, MainActivity.class);
+                AskEmailNew.this.startActivity(intent);
             }
         });
         return builder.create();

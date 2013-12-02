@@ -7,4 +7,18 @@
     <string name="title_activity_ask_email_new"> </string>
     <string name="title_activity_ask_email_exist"> </string>
 
+    <string name="title_section1">Friends</string>
+    <string name="title_section2">Add Friends</string>
+    <string name="title_section3">Pending Friends</string>
+
+    <string-array name="action_list">
+        <item>Sort by Name</item>
+        <item>Sort by Time</item>
+        <item>Sort by Location</item>
+    </string-array>
+
+    <string name="title_activity_add_friend">Add Friend</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_pending_requests">Pending Requests</string>
+
 </resources>
