@@ -1,6 +1,7 @@
 package android.wifind;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 
@@ -57,7 +58,7 @@ public class loginTasks {
         editor.commit();
     }
 
-    private static String readUserName(Context ctx) {
+    public static String readUserName(Context ctx) {
         initializeVar(ctx);
         return pref.getString("username", null);
     }
@@ -167,6 +168,80 @@ public class loginTasks {
                 e.printStackTrace();
             }
             return null;
+        }
+    }
+
+
+    public static class loginTaskHome extends AsyncTask<Void, Void, Void> {
+
+        private Context ctx;
+
+        public loginTaskHome(Context ctx) {
+            this.ctx = ctx;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            initializeVar(ctx);
+            List<NameValuePair> params = new ArrayList<NameValuePair>();
+
+
+            String userName = readUserName(ctx);
+            String mac_address = readMAC(ctx);
+            //"a@bc.com", "30:17:c8:e9:3d:19"
+            params.add(new BasicNameValuePair("username", userName));
+            params.add(new BasicNameValuePair("password", mac_address));
+
+            UrlEncodedFormEntity ent = null;
+
+            try {
+                ent = new UrlEncodedFormEntity(params, HTTP.UTF_8);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+
+            HttpPost httppost = new HttpPost(loginURL.toString());
+            httppost.setEntity(ent);
+            HttpResponse httres = null;
+
+            CookieStore cookieStore = new BasicCookieStore();
+            HttpContext localContext = new BasicHttpContext();
+            localContext.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
+            HttpClient httpClient = new DefaultHttpClient();
+
+            try {
+                httres = httpClient.execute(httppost, localContext);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            assert httres != null;
+            HttpEntity httpent = httres.getEntity();
+
+            if (httres.getStatusLine().getStatusCode() == 403) {
+                System.out.println("ERROR");
+            } else if (ent != null) {
+                List<Cookie> cookies = cookieStore.getCookies();
+                storeSessionID(cookies.get(0).getValue());
+            }
+
+            try {
+                System.out.println(EntityUtils.toString(httpent));
+                String sessionID = httres.getFirstHeader("Set-Cookie").getValue();
+                System.out.println(sessionID);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            Intent intent = new Intent(ctx, MainActivity.class);
+            ctx.startActivity(intent);
         }
     }
 

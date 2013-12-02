@@ -101,8 +101,11 @@ public class AskEmailNew extends Activity {
             } catch (ClientProtocolException e) {
                 e.printStackTrace();
             } catch (ConnectTimeoutException e) {
+                code = 420;
             } catch (IOException e) {
                 e.printStackTrace();
+            } finally {
+                pd.dismiss();
             }
             return false;
         }
@@ -110,11 +113,13 @@ public class AskEmailNew extends Activity {
         @Override
         protected void onPostExecute(final Boolean success) {
             pd.dismiss();
-            if (success) {
+            if(code == 420)
+                showDialog(2);
+            else if (success) {
                 showDialog(0);
                 //show dialog for confirmation code
             } else
-                showDialog(2);
+                showDialog(3);
         }
     }
 

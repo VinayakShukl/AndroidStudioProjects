@@ -14,20 +14,18 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Window;
-import android.widget.Toast;
-import android.wifind.util.SystemUiHider;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 
-/**
- * An example full-screen activity that shows and hides the system UI (i.e.
- * status bar and navigation/system bar) with user interaction.
- *
- * @see SystemUiHider
- */
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+
 public class FullscreenActivity extends Activity {
 
     protected BroadcastReceiver wifiEventReceiver = new BroadcastReceiver() {
@@ -56,11 +54,7 @@ public class FullscreenActivity extends Activity {
 
         final WifiManager wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 
-
-        //Check if Wifi is enabled
         if (!wifi.isWifiEnabled()) {
-
-
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
 
             alertDialogBuilder.setTitle("Your Wifi is disabled");
@@ -82,7 +76,6 @@ public class FullscreenActivity extends Activity {
             alertDialogBuilder.setNegativeButton("No", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     FullscreenActivity.this.finish();
-                    //dialog.cancel();
                 }
             });
 
@@ -90,17 +83,17 @@ public class FullscreenActivity extends Activity {
 
             alertDialog.show();
         } else {
-            System.out.println("Calling tryGet...");
-            //new tryGet("http://192.168.52.112:8000/test_login/", this).execute();
             new SendCodeTask().execute();
         }
 
     }
 
-    /*
-        private class tryGet extends loginTasks.WiFindAsync {
+        /*
+        new getEmailAsync(url, Activity.this).execute()
 
-            public tryGet(String url, Context ctx) {
+        private class getEmailAsync extends loginTasks.WiFindAsync {
+
+            public getEmailAsync(String url, Context ctx) {
                 super(url, ctx);
             }
 
@@ -115,7 +108,7 @@ public class FullscreenActivity extends Activity {
 
                 assert httpRes != null;
                 HttpEntity httpReply = httpRes.getEntity();
-                if (httpRes.getStatusLine().getStatusCode() == 403) {
+                if (httpRes.getStatusLine().getStatusCode() == 302) {
                     // call loginTask in onPostExecute()
                     System.out.println("Session expired");
                     return false;
@@ -133,64 +126,149 @@ public class FullscreenActivity extends Activity {
             @Override
             protected void onPostExecute(Boolean successfulLogin) {
                 super.onPostExecute(successfulLogin);
-                if (!successfulLogin)
+                if (!successfulLogin){
                     new loginTasks.loginTask(ctx).execute();
-            }
-        }
-    */
-    String reply;
 
-    class CheckMac extends AsyncTask<Void, Void, Boolean> {
+                }
+            }
+        }*/
+
+
+    public static class getEmailAsync extends AsyncTask<Void, Void, String> {
+        protected HttpClient httpClient;
+        protected URL url;
+        protected Context ctx;
+        protected HttpGet httpGet;
+        protected HttpResponse httpRes;
+
+        public static String userName;
+
+        public getEmailAsync(String url, Context ctx) {
+            try {
+                this.url = new URL(url);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+            this.httpClient = new DefaultHttpClient();
+            this.ctx = ctx;
+            this.httpGet = new HttpGet(url);
+            userName = null;
+        }
+
+
+        @Override
+        protected String doInBackground(Void... voids) {
+            try {
+                System.out.println("Executing HTTP GET...");
+                httpRes = httpClient.execute(httpGet);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            assert httpRes != null;
+            HttpEntity httpReply = httpRes.getEntity();
+            userName = null;
+
+            try {
+                userName = EntityUtils.toString(httpReply);
+                System.out.println(userName);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return userName;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+        }
+    }
+
+    class CheckMac extends AsyncTask<Void, Void, Integer> {
 
         int code;
         WifiManager wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         WifiInfo info = wifi.getConnectionInfo();
         String mac = info.getMacAddress();
+        String userName;
+
+        final Integer SUCCESS = 0;
+        final Integer NO_EMAIL = 1;
+        final Integer NO_MAC = 2;
 
         @Override
-        protected Boolean doInBackground(Void... voids) {
+        protected Integer doInBackground(Void... voids) {
             try {
-                HttpGet sendMAC = new HttpGet("http://192.168.52.112:8000/?=" + mac);
-                System.out.println("Sending GET");
+                HttpGet sendMAC = new HttpGet("http://192.168.52.112:8000/existing_mac/?mac=" + mac);
                 HttpResponse response = new DefaultHttpClient().execute(sendMAC);
-                System.out.println("Response Received");
                 code = response.getStatusLine().getStatusCode();
-                reply = EntityUtils.toString(response.getEntity());
+
                 if (code == 200) {
-                    if (reply.equals("True"))
-                        return true;
+                    userName = loginTasks.readUserName(FullscreenActivity.this);
+                    if (userName == null) {
+
+                        HttpClient httpClient;
+                        URL url = null;
+                        try {
+                            url = new URL("http://192.168.52.112:8000/get_email/?mac=" + mac);
+                        } catch (MalformedURLException e) {
+                            e.printStackTrace();
+                        }
+
+                        HttpGet httpGet;
+                        httpClient = new DefaultHttpClient();
+                        httpGet = new HttpGet(String.valueOf(url));
+                        HttpResponse httpRes = httpClient.execute(httpGet);
+
+                        assert httpRes != null;
+                        HttpEntity httpReply = httpRes.getEntity();
+
+                        try {
+                            userName = EntityUtils.toString(httpReply);
+                            System.out.println(userName);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        String[] args = {userName, mac};
+                        loginTasks.storeEmailMAC(FullscreenActivity.this, args);
+                        loginTasks.loginTaskHome myTask2 = new loginTasks.loginTaskHome(FullscreenActivity.this);
+                        myTask2.execute();
+                        return NO_EMAIL;
+                    }
+                    return SUCCESS;
                 }
             } catch (Exception ignored) {
-
             }
-            return false;
+            return NO_MAC;
         }
 
         @Override
-        protected void onPostExecute(Boolean a) {
-            System.out.println("2In postExecute");
-            if (a) {
-                //Registered User. Go to Homepage.
-                Toast.makeText(FullscreenActivity.this, "Registered", Toast.LENGTH_LONG).show();
-            } else {
-                //Unregistered. Go register.
-                Thread timer= new Thread()
-                {
-                    public void run()
-                    {
-                        try
-                        {
-                            //Display for 3 seconds
+        protected void onPostExecute(Integer status) {
+            if (status.equals(NO_EMAIL)) {
+               return;
+            } else if (status.equals(SUCCESS)) {
+                Thread timer = new Thread() {
+                    public void run() {
+                        try {
                             sleep(2000);
-                        }
-                        catch (InterruptedException e)
-                        {
-                            // TODO: handle exception
+                        } catch (InterruptedException e) {
                             e.printStackTrace();
+                        } finally {
+                            Intent intent = new Intent(FullscreenActivity.this, MainActivity.class);
+                            startActivity(intent);
                         }
-                        finally
-                        {
-                            //Goes to Activity  StartingPoint.java(STARTINGPOINT)
+                    }
+                };
+                timer.start();
+            } else if (status.equals(NO_MAC)) {
+                Thread timer = new Thread() {
+                    public void run() {
+                        try {
+                            sleep(2000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        } finally {
                             Intent intent = new Intent(FullscreenActivity.this, UserCheck.class);
                             startActivity(intent);
                         }
@@ -198,7 +276,6 @@ public class FullscreenActivity extends Activity {
                 };
                 timer.start();
             }
-
         }
     }
 
@@ -218,9 +295,7 @@ public class FullscreenActivity extends Activity {
                 if (code == 200) {
                     return true;
                 }
-
             } catch (Exception ignored) {
-
             }
             return false;
         }
@@ -229,15 +304,10 @@ public class FullscreenActivity extends Activity {
         protected void onPostExecute(Boolean a) {
             System.out.println("1In postExecute");
             if (a) {
-                //NOW IT IS CONFIRMED THAT THE APP IS CONNECTED TO PRATEEK'S SERVER.
-                //NOW YOU NEED TO CHECK IF THE USER IS NEW OR NOT.
-                System.out.println("1Code 200");
                 new CheckMac().execute();
             } else {
-                System.out.println("1Not 200");
                 badConnection();
             }
-
         }
     }
 
@@ -249,19 +319,13 @@ public class FullscreenActivity extends Activity {
         alertDialogBuilder.setMessage("You are not connected to the local IIITD Network");
         alertDialogBuilder.setCancelable(false);
 
-
         alertDialogBuilder.setPositiveButton("Quit", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 FullscreenActivity.this.finish();
             }
         });
-
         AlertDialog alertDialog = alertDialogBuilder.create();
-
         alertDialog.show();
-
-
     }
-
 }
 
