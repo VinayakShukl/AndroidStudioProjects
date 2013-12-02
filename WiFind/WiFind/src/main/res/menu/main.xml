@@ -20,6 +20,8 @@
             android:title="Sort by Name" />
         <item android:id="@+id/sortmenu_sortloc"
             android:title="Sort by Location" />
+            <item android:id="@+id/sortmenu_sorttime"
+                android:title="Sort by Last Seen" />
         </menu>
 
      </item>

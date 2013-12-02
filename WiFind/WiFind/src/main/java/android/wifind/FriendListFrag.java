@@ -1,9 +1,12 @@
 package android.wifind;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -12,7 +15,6 @@ import java.util.ArrayList;
 /**
  * Created by Romil on 2/12/13.
  */
-
 /**
  * A placeholder fragment containing a simple view.
  */
