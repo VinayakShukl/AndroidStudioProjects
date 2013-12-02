@@ -115,36 +115,11 @@ public class MainActivity extends ActionBarActivity {
                 Intent pendingfriendint = new Intent(this, PendingRequests.class);
                 startActivity(pendingfriendint);
                 return true;
+            case R.id.sortmenu_sorttime:
+                System.out.println("Sort by Time");
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
-
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    /*public class FriendListFragment extends ListFragment {
-        private Activity activity;
-        private static final String ARG_SECTION_NUMBER = "section_number";
-
-        public FriendListFragment (int sectionNumber, Activity activity) {
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            this.setArguments(args);
-            this.activity=activity;
-        }
-
-        public FriendListFragment() {
-
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
-            frndadp = new FriendAdapter(inflater.getContext(), frndarr);
-
-            setListAdapter(frndadp);
-
-            return super.onCreateView(inflater, container, savedInstanceState);
-        }
-    }*/
 
 }
