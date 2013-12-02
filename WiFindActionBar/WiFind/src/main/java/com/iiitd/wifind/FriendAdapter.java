@@ -48,6 +48,10 @@ public class FriendAdapter extends ArrayAdapter<Friend> {
         Name.setText(friends.get(position).name);
         TextView loc = (TextView) vi.findViewById(R.id.frndlistloc);
         loc.setText(friends.get(position).location);
+        TextView time = (TextView) vi.findViewById(R.id.frndlisttime);
+        time.setText(friends.get(position).time);
+        TextView date = (TextView) vi.findViewById(R.id.frndlistdate);
+        date.setText(friends.get(position).date);
         return vi;
     }
 }
