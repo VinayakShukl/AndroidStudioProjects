@@ -25,27 +25,27 @@ def process(js):
     print "Total Readings: ",i
 
 
-# def respond(request):
-#     if request.method == 'GET':
-#         html = "<html><body>GET Recevied!</body></html>"
-#
-#     elif request.method == 'POST':
-#         html = "<html><body>You sent a POST message! I got it :) </body></html>"
-#         js = json.loads(request.body)
-#         #print js
-#
-#         path = '/home/prateek/Desktop/Readings.txt'
-#
-#         f = open(path,'a+')
-#         json.dump(js,f)
-#         f.write("\n")
-#         f.close()
-#
-#         process(js)
-#
-#     else:
-#         html = "<html><body>Unknown Method!</body></html>"
-#     return HttpResponse(html)
+def respond(request):
+    if request.method == 'GET':
+        html = "<html><body>GET Recevied!</body></html>"
+
+    elif request.method == 'POST':
+        html = "Your results have been recorded :)"
+        js = json.loads(request.body)
+        print js
+
+        # path = '/home/prateek/Desktop/Readings.txt'
+        #
+        # f = open(path,'a+')
+        # json.dump(js,f)
+        # f.write("\n")
+        # f.close()
+        #
+        # process(js)
+
+    else:
+        html = "<html><body>Unknown Method!</body></html>"
+    return HttpResponse(html)
 
 def query(request):
     if request.method == 'GET':

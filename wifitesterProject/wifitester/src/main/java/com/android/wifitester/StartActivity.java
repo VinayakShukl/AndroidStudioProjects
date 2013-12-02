@@ -149,7 +149,7 @@ public class StartActivity extends Activity {
 
                 alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
                 alarm.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), 5 * 1000, pintent);
-
+                Toast.makeText(StartActivity.this, "Service Started!", Toast.LENGTH_SHORT).show();
                 //startButton.setEnabled(false);
                 //stopButton.setEnabled(true);
             }
@@ -173,10 +173,11 @@ public class StartActivity extends Activity {
 
                 try {
                     unregisterReceiver(myRecv);
+                    Toast.makeText(StartActivity.this, "Service stopped! Results sent: " + postCount, Toast.LENGTH_LONG).show();
                 } catch (IllegalArgumentException e) {
-                    System.out.println("ERROR: REceiver was already unregistered...\n");
+                    Toast.makeText(StartActivity.this, "Already stopped!", Toast.LENGTH_SHORT).show();
+                    System.out.println("fERROR: REceiver was already unregistered...\n");
                 }
-                Toast.makeText(getApplicationContext(), Integer.toString(postCount), Toast.LENGTH_LONG).show();
 
                 //stopButton.setEnabled(false);
                 //startButton.setEnabled(true);

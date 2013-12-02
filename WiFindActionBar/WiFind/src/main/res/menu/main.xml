@@ -1,0 +1,38 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivity" >
+
+    <item android:id="@+id/action_refresh"
+        android:icon="@drawable/refresh_mdpi"
+        android:title="Refresh"
+        android:orderInCategory="1"
+        app:showAsAction="ifRoom" />
+
+    <item android:id="@+id/action_sortmenu"
+        android:icon="@drawable/sort_hdpi"
+        android:title="Sort"
+        android:orderInCategory="2"
+        app:showAsAction="ifRoom">
+
+        <menu>
+        <item android:id="@+id/sortmenu_sortname"
+            android:title="Sort by Name" />
+        <item android:id="@+id/sortmenu_sortloc"
+            android:title="Sort by Location" />
+        </menu>
+
+     </item>
+    
+    <item android:id="@+id/action_addfriend"
+        android:title="Add Friend"
+        android:icon="@drawable/addfriend_mdpi"
+        android:orderInCategory="3"
+        app:showAsAction="ifRoom" />
+
+    <item android:id="@+id/action_pendingrequests"
+        android:title="Pending Requests"
+        android:icon="@drawable/pending_mdpi"
+        android:orderInCategory="4"
+        app:showAsAction="ifRoom" />
+</menu>
