@@ -28,33 +28,6 @@ import org.apache.http.util.EntityUtils;
  * @see SystemUiHider
  */
 public class FullscreenActivity extends Activity {
-    /**
-     * Whether or not the system UI should be auto-hidden after
-     * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
-     */
-    private static final boolean AUTO_HIDE = true;
-
-    /**
-     * If {@link #AUTO_HIDE} is set, the number of milliseconds to wait after
-     * user interaction before hiding the system UI.
-     */
-    private static final int AUTO_HIDE_DELAY_MILLIS = 3000;
-
-    /**
-     * If set, will toggle the system UI visibility upon interaction. Otherwise,
-     * will show the system UI visibility upon interaction.
-     */
-    private static final boolean TOGGLE_ON_CLICK = true;
-
-    /**
-     * The flags to pass to {@link SystemUiHider#getInstance}.
-     */
-    private static final int HIDER_FLAGS = SystemUiHider.FLAG_HIDE_NAVIGATION;
-
-    /**
-     * The instance of the {@link SystemUiHider} for this activity.
-     */
-    private SystemUiHider mSystemUiHider;
 
     protected BroadcastReceiver wifiEventReceiver = new BroadcastReceiver() {
         @Override
@@ -64,6 +37,7 @@ public class FullscreenActivity extends Activity {
                 Log.e("DEBUG", "Network state change detected!");
                 NetworkInfo networkInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
 
+                assert networkInfo != null;
                 if (networkInfo.isConnected()) {
                     System.out.println(networkInfo.getDetailedState());
                     Log.e("DEBUG", "Now connected to Wifi");
@@ -99,7 +73,7 @@ public class FullscreenActivity extends Activity {
                     IntentFilter filter;
                     filter = new IntentFilter();
                     filter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
-                    getApplicationContext().registerReceiver(wifiEventReceiver, filter);
+                    FullscreenActivity.this.registerReceiver(wifiEventReceiver, filter);
                     wifi.setWifiEnabled(true);
                 }
             });
@@ -115,11 +89,54 @@ public class FullscreenActivity extends Activity {
 
             alertDialog.show();
         } else {
+            System.out.println("Calling tryGet...");
+            //new tryGet("http://192.168.52.112:8000/test_login/", this).execute();
             new SendCodeTask().execute();
         }
 
     }
 
+    /*
+        private class tryGet extends loginTasks.WiFindAsync {
+
+            public tryGet(String url, Context ctx) {
+                super(url, ctx);
+            }
+
+            @Override
+            protected Boolean doInBackground(Void... voids) {
+                try {
+                    System.out.println("Executing HTTP GET...");
+                    httpRes = httpClient.execute(httpGet);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                assert httpRes != null;
+                HttpEntity httpReply = httpRes.getEntity();
+                if (httpRes.getStatusLine().getStatusCode() == 403) {
+                    // call loginTask in onPostExecute()
+                    System.out.println("Session expired");
+                    return false;
+                }
+
+                try {
+                    //  do something with returned data
+                    System.out.println("Returned data: " + EntityUtils.toString(httpReply));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return true;
+            }
+
+            @Override
+            protected void onPostExecute(Boolean successfulLogin) {
+                super.onPostExecute(successfulLogin);
+                if (!successfulLogin)
+                    new loginTasks.loginTask(ctx).execute();
+            }
+        }
+    */
     String reply;
 
     class CheckMac extends AsyncTask<Void, Void, Boolean> {
@@ -142,9 +159,7 @@ public class FullscreenActivity extends Activity {
                     if (reply.equals("True"))
                         return true;
                 }
-
-
-            } catch (Exception e) {
+            } catch (Exception ignored) {
 
             }
             return false;
@@ -155,7 +170,7 @@ public class FullscreenActivity extends Activity {
             System.out.println("2In postExecute");
             if (a) {
                 //Registered User. Go to Homepage.
-                Toast.makeText(getApplicationContext(), "Registered", Toast.LENGTH_LONG).show();
+                Toast.makeText(FullscreenActivity.this, "Registered", Toast.LENGTH_LONG).show();
             } else {
                 //Unregistered. Go register.
                 Intent intent = new Intent(FullscreenActivity.this, UserCheck.class);
@@ -182,7 +197,7 @@ public class FullscreenActivity extends Activity {
                     return true;
                 }
 
-            } catch (Exception e) {
+            } catch (Exception ignored) {
 
             }
             return false;

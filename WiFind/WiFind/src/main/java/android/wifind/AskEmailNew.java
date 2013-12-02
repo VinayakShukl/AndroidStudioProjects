@@ -29,22 +29,22 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class AskEmailNew extends Activity {
 
     private String mac_address;
-    private Button btn;
     private Regs rg1;
     private EditText email;
     private String email_address;
-    private AlertDialog alert;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.ask_email);
 
-        btn = (Button) findViewById(R.id.reg_btn);
+        Button btn = (Button) findViewById(R.id.reg_btn);
         email = (EditText) findViewById(R.id.email);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,8 +78,6 @@ public class AskEmailNew extends Activity {
         return true;
     }
 
-    private String reply;
-
     public class Regs extends AsyncTask<Void, Void, Boolean> {
 
         int code;
@@ -94,17 +92,14 @@ public class AskEmailNew extends Activity {
                 HttpConnectionParams.setConnectionTimeout(parameters, timeout);
                 HttpResponse response = new DefaultHttpClient(parameters).execute(senddata);
                 code = response.getStatusLine().getStatusCode();
-                reply = EntityUtils.toString(response.getEntity());
+                EntityUtils.toString(response.getEntity());
 
-                if (code == 200) {
-                    if (reply.equals("True"))
-                        return true;
-                }
+                if (code == 200) return true;
 
 
             } catch (ClientProtocolException e) {
                 e.printStackTrace();
-            } catch (ConnectTimeoutException e) {
+            } catch (ConnectTimeoutException ignored) {
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -129,19 +124,32 @@ public class AskEmailNew extends Activity {
         protected Boolean doInBackground(String... strings) {
 
             try {
-                HttpGet senddata = new HttpGet("http://192.168.52.112:8000/confirm_code/?code=" + strings[0] + "&mac=" + mac_address + "&email=" + email_address);
+                String request = null;
+                try {
+
+                    URI uri = new URI(
+                            "http",
+                            "192.168.52.112:8000",
+                            "/confirm_code",
+                            "?code=" + strings[0] + "&mac=" + mac_address + "&email=" + email_address + "&device=" + android.os.Build.MODEL + "&os=" + android.os.Build.VERSION.RELEASE,
+                            null);
+                    request = uri.toASCIIString();
+                } catch (URISyntaxException e) {
+                    e.printStackTrace();
+                }
+                HttpGet senddata = new HttpGet(request);
                 HttpParams parameters = new BasicHttpParams();
-                int timeout = 3000;
+                int timeout = 15 * 1000;
                 HttpConnectionParams.setConnectionTimeout(parameters, timeout);
                 HttpResponse response = new DefaultHttpClient(parameters).execute(senddata);
                 code = response.getStatusLine().getStatusCode();
-                reply = EntityUtils.toString(response.getEntity());
+                EntityUtils.toString(response.getEntity());
                 if (code == 200) {
-                    if (reply.equals("True"))
-                        return true;
+                    String[] args = {email_address, mac_address};
+                    loginTasks.storeEmailMAC(AskEmailNew.this, args);
+                    new loginTasks.loginTask(AskEmailNew.this).execute();
+                    return true;
                 }
-
-
             } catch (ClientProtocolException e) {
                 e.printStackTrace();
             } catch (HttpHostConnectException e) {
@@ -241,20 +249,16 @@ public class AskEmailNew extends Activity {
     @Override
     protected Dialog onCreateDialog(int id) {
         if (id == 0) {
-            alert = createCodeDialog();
-            return alert;
+            return createCodeDialog();
         }
         if (id == 1) {
-            alert = successDialog();
-            return alert;
+            return successDialog();
         }
         if (id == 2) {
-            alert = serverBusy();
-            return alert;
+            return serverBusy();
         }
         if (id == 3) {
-            alert = incorrectCode();
-            return alert;
+            return incorrectCode();
         }
         return null;
     }
