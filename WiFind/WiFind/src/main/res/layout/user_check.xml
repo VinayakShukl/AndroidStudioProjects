@@ -2,32 +2,40 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#E5E4E2"
     android:paddingTop="16dp"
     android:paddingBottom="16dp"
     tools:context=".UserCheck">
 
+    <ImageView
+        android:id="@+id/img1"
+        android:src="@drawable/wifindlogo"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="80dp"
+         />
+
     <Button
         android:id="@+id/btn1"
-        android:layout_width="250dp"
-        android:layout_height="100dp"
+        android:layout_width="120dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="120dp"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="125dp"
-        android:text="New User"
-        android:textSize="30dp"
-        android:background="#78866B"/>
+        android:layout_below="@+id/img1"
+        android:textColor="#ffffff"
+        android:text="Sign Up"
+        android:background="@drawable/roundbutton"
+        />
 
-
-    <Button
-        android:id="@+id/btn2"
-        android:layout_width="250dp"
-        android:layout_height="100dp"
-        android:layout_marginTop="50dp"
-        android:layout_below="@+id/btn1"
+    <TextView
+        android:id="@+id/txt1"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:text="I am an existing user"
+        android:textSize="15dp"
+        android:textColor="#0645AD"
+        android:layout_below="@id/btn1"
         android:layout_centerHorizontal="true"
-        android:text="Existing User\n(New Device)"
-        android:textSize="30dp"
-        android:background="#78866B"/>
-
-
+        android:layout_marginTop="20dp"
+    />
 </RelativeLayout>

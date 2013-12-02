@@ -1,21 +1,30 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0099cc"
+    android:background="#ffffff"
     tools:context=".FullscreenActivity">
 
     <!-- The primary full-screen view. This can be replaced with whatever view
          is needed to present your content, e.g. VideoView, SurfaceView,
          TextureView, etc. -->
-    <TextView android:id="@+id/fullscreen_content"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:keepScreenOn="true"
-        android:textColor="#33b5e5"
-        android:textStyle="bold"
-        android:textSize="50sp"
-        android:gravity="center"
-        android:text="@string/dummy_content" />
+    <ImageView
+        android:id="@+id/logo"
+        android:src="@drawable/wifindlogo"
+        android:layout_width="272dp"
+        android:layout_height="80dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        />
 
-</FrameLayout>
+    <TextView
+        android:text="Developed at IIITD"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="30sp"
+        android:textColor="#000000"
+    />
+
+</RelativeLayout>

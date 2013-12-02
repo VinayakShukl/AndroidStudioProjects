@@ -1,9 +1,11 @@
 package android.wifind;
 
 import android.annotation.TargetApi;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.net.wifi.WifiInfo;
@@ -13,6 +15,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -71,16 +74,17 @@ public class AskEmailNew extends Activity {
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.ask_email_new, menu);
-        return true;
-    }
-
     public class Regs extends AsyncTask<Void, Void, Boolean> {
 
         int code;
+        ProgressDialog pd=null;
+
+        @Override
+        protected void onPreExecute(){
+            pd=new ProgressDialog(AskEmailNew.this);
+            pd.setMessage("Loading...");
+            pd.show();
+        }
 
         @Override
         protected Boolean doInBackground(Void... params) {
@@ -88,18 +92,19 @@ public class AskEmailNew extends Activity {
             try {
                 HttpGet senddata = new HttpGet("http://192.168.52.112:8000/new_user/?mac=" + mac_address + "&email=" + email_address);
                 HttpParams parameters = new BasicHttpParams();
-                int timeout = 3000;
-                HttpConnectionParams.setConnectionTimeout(parameters, timeout);
+                int timeout = 100000;
+                HttpConnectionParams.setConnectionTimeout(parameters,timeout);
                 HttpResponse response = new DefaultHttpClient(parameters).execute(senddata);
                 code = response.getStatusLine().getStatusCode();
-                EntityUtils.toString(response.getEntity());
 
-                if (code == 200) return true;
+                if (code == 200) {
+                        return true;
+                }
 
 
             } catch (ClientProtocolException e) {
                 e.printStackTrace();
-            } catch (ConnectTimeoutException ignored) {
+            } catch (ConnectTimeoutException e) {
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -108,6 +113,7 @@ public class AskEmailNew extends Activity {
 
         @Override
         protected void onPostExecute(final Boolean success) {
+            pd.dismiss();
             if (success) {
                 showDialog(0);
                 //show dialog for confirmation code
@@ -139,17 +145,19 @@ public class AskEmailNew extends Activity {
                 }
                 HttpGet senddata = new HttpGet(request);
                 HttpParams parameters = new BasicHttpParams();
-                int timeout = 15 * 1000;
+                int timeout = 15*1000;
                 HttpConnectionParams.setConnectionTimeout(parameters, timeout);
                 HttpResponse response = new DefaultHttpClient(parameters).execute(senddata);
                 code = response.getStatusLine().getStatusCode();
-                EntityUtils.toString(response.getEntity());
+          
                 if (code == 200) {
                     String[] args = {email_address, mac_address};
                     loginTasks.storeEmailMAC(AskEmailNew.this, args);
                     new loginTasks.loginTask(AskEmailNew.this).execute();
                     return true;
                 }
+
+
             } catch (ClientProtocolException e) {
                 e.printStackTrace();
             } catch (HttpHostConnectException e) {

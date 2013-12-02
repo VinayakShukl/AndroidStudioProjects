@@ -2,10 +2,9 @@
 <resources>
 
     <string name="app_name">WiFind</string>
-    <string name="dummy_content">WiFind</string>
     <string name="title_activity_user_check">UserCheck</string>
     <string name="action_settings">Settings</string>
-    <string name="title_activity_ask_email_new">Registration</string>
-    <string name="title_activity_ask_email_exist">Registration</string>
+    <string name="title_activity_ask_email_new"> </string>
+    <string name="title_activity_ask_email_exist"> </string>
 
 </resources>
