@@ -35,4 +35,7 @@
 
     <style name="ButtonBarButton" />
 
+    <style name="StyledText">
+
+    </style>
 </resources>

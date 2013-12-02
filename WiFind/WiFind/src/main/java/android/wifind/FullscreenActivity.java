@@ -13,6 +13,7 @@ import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Window;
 import android.widget.Toast;
 import android.wifind.util.SystemUiHider;
 
@@ -76,7 +77,7 @@ public class FullscreenActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_fullscreen);
 
         final WifiManager wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
@@ -158,8 +159,29 @@ public class FullscreenActivity extends Activity {
                 Toast.makeText(getApplicationContext(), "Registered", Toast.LENGTH_LONG).show();
             } else {
                 //Unregistered. Go register.
-                Intent intent = new Intent(FullscreenActivity.this, UserCheck.class);
-                startActivity(intent);
+                Thread timer= new Thread()
+                {
+                    public void run()
+                    {
+                        try
+                        {
+                            //Display for 3 seconds
+                            sleep(2000);
+                        }
+                        catch (InterruptedException e)
+                        {
+                            // TODO: handle exception
+                            e.printStackTrace();
+                        }
+                        finally
+                        {
+                            //Goes to Activity  StartingPoint.java(STARTINGPOINT)
+                            Intent intent = new Intent(FullscreenActivity.this, UserCheck.class);
+                            startActivity(intent);
+                        }
+                    }
+                };
+                timer.start();
             }
 
         }
