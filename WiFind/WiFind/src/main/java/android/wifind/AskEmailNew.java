@@ -184,7 +184,6 @@ public class AskEmailNew extends Activity {
     private AlertDialog createCodeDialog() {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Confirm");
         builder.setMessage("Enter the confirmation code sent to " + email_address + "@iiitd.ac.in : ");
 
         final EditText input_code = new EditText(this);
@@ -211,7 +210,7 @@ public class AskEmailNew extends Activity {
     private AlertDialog successDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        builder.setTitle("Successful Registration");
+        builder.setMessage("Successful Registration");
 
         builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             @Override
@@ -228,7 +227,7 @@ public class AskEmailNew extends Activity {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        builder.setTitle("Oops. Something went wrong");
+        builder.setMessage("Oops. Something went wrong");
 
         builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             @Override
@@ -244,7 +243,7 @@ public class AskEmailNew extends Activity {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        builder.setTitle("Please enter correct code");
+        builder.setMessage("Please enter correct code");
 
         builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             @Override

@@ -47,6 +47,11 @@ public class FriendListFrag extends ListFragment {
         return frndadp;
     }
 
+
+    public void updateCall(){
+        frndadp.notifyDataSetChanged();
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
         /** Creating an array adapter to store the list of countries **/

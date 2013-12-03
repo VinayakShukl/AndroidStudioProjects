@@ -18,6 +18,13 @@ public class Friend {
         this.date = "";
     }
 
+    public Friend(String name){
+        this.name = name;
+        this.location = "";
+        this.time = "";
+        this.date = "";
+    }
+
     public Friend(String name, String loc, String time, String date){
         this.name = name;
         this.location = loc;
@@ -30,10 +37,18 @@ public class Friend {
         this.date = date;
     }
 
-    public static ArrayList<Friend> CreateFriendArray (String[] names, String[] locs, String[] times, String[] dates){
+    public static ArrayList<Friend> CreateFriendArray (ArrayList<String> names, ArrayList<String>  locs, ArrayList<String> times, ArrayList<String> dates){
         ArrayList<Friend> friends = new ArrayList<Friend>();
-        for (int i=0; i<names.length; i++){
-            friends.add(new Friend(names[i], locs[i], times[i], dates[i]));
+        for (int i=0; i<names.size(); i++){
+            friends.add(new Friend(names.get(i), locs.get(i), times.get(i), dates.get(i)));
+        }
+        return friends;
+    }
+
+    public static ArrayList<Friend> CreatePublicUsersArray (ArrayList<String> names){
+        ArrayList<Friend> friends = new ArrayList<Friend>();
+        for (int i=0; i<names.size(); i++){
+            friends.add(new Friend(names.get(i)));
         }
         return friends;
     }

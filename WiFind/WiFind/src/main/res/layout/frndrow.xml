@@ -42,8 +42,9 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/frndlistname"
+        android:paddingTop="12dip"
         android:textColor="#343434"
-        android:textSize="15dip"
+        android:textSize="13dip"
         android:layout_marginTop="1dip"
         android:layout_toRightOf="@+id/thumbnail"
         android:text="" />
@@ -52,7 +53,7 @@
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:layout_alignParentRight="true"
-        android:layout_centerVertical="true">
+        android:layout_alignParentTop="true">
     <!-- Rightend Date -->
     <TextView
         android:id="@+id/frndlisttime"
@@ -62,7 +63,7 @@
         android:gravity="right"
         android:text=""
         android:layout_marginRight="5dip"
-        android:textSize="15dip"
+        android:textSize="12dip"
         android:textColor="#10bcc9"
         android:textStyle="bold"/>
 
@@ -76,7 +77,7 @@
         android:gravity="right"
         android:text=""
         android:layout_marginRight="5dip"
-        android:textSize="15dip"
+        android:textSize="12dip"
         android:textColor="#10bcc9"
         android:textStyle="bold"/>
     </RelativeLayout>
