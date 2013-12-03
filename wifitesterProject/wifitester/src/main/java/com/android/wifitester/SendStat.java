@@ -157,17 +157,17 @@ public class SendStat extends Activity {
         String[] IDString = new String[25];
 
         if (buildingSelected.compareTo("Academic") == 0) {
-            if (floorSelected.compareTo("Ground") == 0) {
+            if (floorSelected.compareTo("0") == 0) {
                 IDString = getResources().getStringArray(R.array.Academic_Ground_IDs);
-            } else if (floorSelected.compareTo("1st") == 0) {
+            } else if (floorSelected.compareTo("1") == 0) {
                 IDString = getResources().getStringArray(R.array.Academic_First_IDs);
-            } else if (floorSelected.compareTo("2nd") == 0) {
+            } else if (floorSelected.compareTo("2") == 0) {
                 IDString = getResources().getStringArray(R.array.Academic_Second_IDs);
-            } else if (floorSelected.compareTo("3rd") == 0) {
+            } else if (floorSelected.compareTo("3") == 0) {
                 IDString = getResources().getStringArray(R.array.Academic_Third_IDs);
-            } else if (floorSelected.compareTo("4th") == 0) {
+            } else if (floorSelected.compareTo("4") == 0) {
                 IDString = getResources().getStringArray(R.array.Academic_Fourth_IDs);
-            } else if (floorSelected.compareTo("5th") == 0) {
+            } else if (floorSelected.compareTo("5") == 0) {
                 IDString = getResources().getStringArray(R.array.Academic_Fifth_IDs);
             }
         } else if (buildingSelected.compareTo("Library") == 0) {

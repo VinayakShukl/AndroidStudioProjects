@@ -1,21 +1,19 @@
 package android.wifind;
 
-import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.app.ListFragment;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
+import android.content.IntentFilter;
 import android.os.Bundle;
-import android.view.LayoutInflater;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.ViewConfiguration;
-import android.view.ViewGroup;
-import android.os.Build;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.util.EntityUtils;
@@ -26,6 +24,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 
@@ -75,11 +74,10 @@ public class MainActivity extends ActionBarActivity {
         @Override
         protected void onPostExecute(Boolean successfulLogin) {
             super.onPostExecute(successfulLogin);
-            if (!successfulLogin){
+            if (!successfulLogin) {
                 new loginTasks.loginTask(ctx).execute();
 
-            }
-            else{
+            } else {
 
                 try {
                     System.out.println("Creating JSON Obj " + JSONStr);
@@ -93,8 +91,7 @@ public class MainActivity extends ActionBarActivity {
                     locs = new ArrayList<String>();
                     times = new ArrayList<String>();
                     dates = new ArrayList<String>();
-                    for(int i=0;i<jsonNameArray.length();i++)
-                    {
+                    for (int i = 0; i < jsonNameArray.length(); i++) {
                         System.out.println((String) jsonNameArray.get(i).toString());
                         names.add((String) jsonNameArray.get(i).toString());
                         locs.add((String) jsonLocArray.get(i).toString());
@@ -110,7 +107,7 @@ public class MainActivity extends ActionBarActivity {
                     frndarr.add(new Friend("ramon11074", "Academic - 1 - CCD", "16:52", "02/12"));
                     */
                     //HACK
-                    frndadp= new FriendAdapter(MainActivity.this, frndarr);
+                    frndadp = new FriendAdapter(MainActivity.this, frndarr);
                     ListView lv = frndfrag.getListView();
                     lv.setAdapter(frndadp);
                     frndadp.notifyDataSetChanged();
@@ -121,10 +118,85 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
+
+    private class getMyLocation extends loginTasks.WiFindAsync {
+
+        String JSONStr;
+
+        public getMyLocation(String url, Context ctx) {
+            super(url, ctx);
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            try {
+                System.out.println("Executing HTTP GET...");
+                httpRes = httpClient.execute(httpGet);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            assert httpRes != null;
+            HttpEntity httpReply = httpRes.getEntity();
+            if (httpRes.getStatusLine().getStatusCode() == 302) {
+                // call loginTask in onPostExecute()
+                System.out.println("Session expired");
+                return false;
+            }
+
+            try {
+                //  do something with returned data
+                //System.out.println("Returned data: " + EntityUtils.toString(httpReply));
+                JSONStr = EntityUtils.toString(httpReply);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return true;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean successfulLogin) {
+            super.onPostExecute(successfulLogin);
+            if (!successfulLogin) {
+                new loginTasks.loginTask(ctx).execute();
+
+            } else {
+                    System.out.println("Response " + JSONStr);
+                    //JSONObject jsonObject = new JSONObject(JSONStr);
+                    Toast toast = Toast.makeText(MainActivity.this, JSONStr, Toast.LENGTH_LONG);
+                    toast.show();
+            }
+        }
+    }
+
+    private class ServiceReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            System.out.println("Service update received...");
+        }
+    }
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Intent intent = new Intent(MainActivity.this, SendService.class);
+
+        Calendar cal = Calendar.getInstance();
+        intent = new Intent(MainActivity.this, SendService.class);
+        PendingIntent pintent = PendingIntent.getService(MainActivity.this, 0, intent, 0);
+
+        ServiceReceiver myRecv = new ServiceReceiver();
+        IntentFilter iFilter = new IntentFilter();
+        iFilter.addAction(SendService.MY_ACTION);
+        registerReceiver(myRecv, iFilter);
+
+        AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        alarm.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), 60 * 1000, pintent);
+        System.out.println("Alarm registered...");
 
         // Set up the action bar.
         final ActionBar actionBar = getSupportActionBar();
@@ -133,7 +205,7 @@ public class MainActivity extends ActionBarActivity {
         try {
             ViewConfiguration config = ViewConfiguration.get(this);
             Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
-            if(menuKeyField != null) {
+            if (menuKeyField != null) {
                 menuKeyField.setAccessible(true);
                 menuKeyField.setBoolean(config, false);
             }
@@ -148,28 +220,34 @@ public class MainActivity extends ActionBarActivity {
         frndarr.add(new Friend("Prateek Malhotra", "Acad Block 1st Floor"));*/
 
 
-        frndfrag= new FriendListFrag(0, this, frndarr);
+        frndfrag = new FriendListFrag(0, this, frndarr);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, frndfrag)
                     .commit();
         }
 
-        frndadp=frndfrag.getAdapter();
+        frndadp = frndfrag.getAdapter();
 
         getFriends();
 
     }
 
-    public void getFriends(){
+    public void getFriends() {
         getFriendsAsync getfrndsreq = new getFriendsAsync("http://192.168.52.112:8000/get_friends/", MainActivity.this);
         getfrndsreq.execute();
     }
 
 
+    public void getmyloc() {
+        getMyLocation getloc = new getMyLocation("http://192.168.52.112:8000/get_my_location/", MainActivity.this);
+        getloc.execute();
+    }
+
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        
+
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         System.out.println("Inflating");
@@ -184,7 +262,7 @@ public class MainActivity extends ActionBarActivity {
         System.out.println(item.getItemId());
         System.out.println("Onoptions");
         ListView lv = frndfrag.getListView();
-        frndadp=frndfrag.getAdapter();
+        frndadp = frndfrag.getAdapter();
         switch (item.getItemId()) {
             case R.id.action_refresh:
                 System.out.println("Refreshing");
@@ -198,7 +276,7 @@ public class MainActivity extends ActionBarActivity {
                         return friend.name.compareTo(friend2.name);
                     }
                 });
-                frndadp= new FriendAdapter(MainActivity.this, frndarr);
+                frndadp = new FriendAdapter(MainActivity.this, frndarr);
                 lv.setAdapter(frndadp);
                 frndadp.notifyDataSetChanged();
                 return true;
@@ -210,7 +288,7 @@ public class MainActivity extends ActionBarActivity {
                         return friend.location.compareTo(friend2.location);
                     }
                 });
-                frndadp= new FriendAdapter(MainActivity.this, frndarr);
+                frndadp = new FriendAdapter(MainActivity.this, frndarr);
                 lv.setAdapter(frndadp);
                 frndadp.notifyDataSetChanged();
                 return true;
@@ -227,6 +305,10 @@ public class MainActivity extends ActionBarActivity {
                 System.out.println("PendingFrnds");
                 Intent pendingfriendint = new Intent(this, PendingRequests.class);
                 startActivity(pendingfriendint);
+                return true;
+            case R.id.action_getmyloc:
+                System.out.println("GetMyLoc");
+                getmyloc();
                 return true;
         }
         return super.onOptionsItemSelected(item);

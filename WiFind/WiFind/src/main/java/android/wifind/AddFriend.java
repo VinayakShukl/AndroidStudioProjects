@@ -5,17 +5,17 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
+import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.SimpleCursorAdapter;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
-import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewConfiguration;
-import android.os.Build;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -31,7 +31,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 public class AddFriend extends ActionBarActivity implements SearchView.OnQueryTextListener,
-        SearchView.OnCloseListener{
+        SearchView.OnCloseListener {
 
     ArrayList<Friend> frndarr;
     private ListView myList;
@@ -79,11 +79,10 @@ public class AddFriend extends ActionBarActivity implements SearchView.OnQueryTe
         @Override
         protected void onPostExecute(Boolean successfulLogin) {
             super.onPostExecute(successfulLogin);
-            if (!successfulLogin){
+            if (!successfulLogin) {
                 new loginTasks.loginTask(ctx).execute();
 
-            }
-            else{
+            } else {
 
                 try {
                     JSONObject jsonObject = new JSONObject(JSONStr);
@@ -91,8 +90,7 @@ public class AddFriend extends ActionBarActivity implements SearchView.OnQueryTe
                     System.out.println(jsonNameArray.toString());
                     ArrayList<String> names, locs, times, dates;
                     names = new ArrayList<String>();
-                    for(int i=0;i<jsonNameArray.length();i++)
-                    {
+                    for (int i = 0; i < jsonNameArray.length(); i++) {
                         names.add((String) jsonNameArray.get(i).toString());
                     }
                     frndarr = Friend.CreatePublicUsersArray(names);
@@ -119,7 +117,7 @@ public class AddFriend extends ActionBarActivity implements SearchView.OnQueryTe
         }
     }
 
-    private class addFriendReq extends loginTasks.WiFindAsync{
+    private class addFriendReq extends loginTasks.WiFindAsync {
 
         String JSONStr;
         int retcode;
@@ -160,44 +158,43 @@ public class AddFriend extends ActionBarActivity implements SearchView.OnQueryTe
         @Override
         protected void onPostExecute(Boolean successfulLogin) {
             super.onPostExecute(successfulLogin);
-            if (!successfulLogin){
+            if (!successfulLogin) {
                 new loginTasks.loginTask(ctx).execute();
 
-            }
-            else{
+            } else {
                 System.out.println(retcode);
-                if(retcode==403){
-                    Toast toast = Toast.makeText(AddFriend.this, "Friend request from the user is pending. Please check your friend requests.", Toast.LENGTH_SHORT);
+                if (retcode == 403) {
+                    Toast toast = Toast.makeText(AddFriend.this, "Friend request from the user is pending. Please check your friend requests.", Toast.LENGTH_LONG);
                     toast.show();
-                }
-                else if(retcode==305){
-                    Toast toast = Toast.makeText(AddFriend.this, "A request to the user is already pending.", Toast.LENGTH_SHORT);
+                } else if (retcode == 400) {
+                    Toast toast = Toast.makeText(AddFriend.this, "A request to the user has already been pending.", Toast.LENGTH_LONG);
                     toast.show();
-                }
-                else if(retcode==305){
+                } else if (retcode == 200) {
                     Toast toast = Toast.makeText(AddFriend.this, "Friend Request Sent.", Toast.LENGTH_SHORT);
                     toast.show();
-                }
-                else {
-                    Toast toast = Toast.makeText(AddFriend.this, "Something went VERY wrong.", Toast.LENGTH_SHORT);
+                } else if (retcode == 405) {
+                    Toast toast = Toast.makeText(AddFriend.this, "Your Friendship already holds.", Toast.LENGTH_SHORT);
+                    toast.show();
+                } else {
+                    Toast toast = Toast.makeText(AddFriend.this, retcode, Toast.LENGTH_SHORT);
                     toast.show();
                 }
             }
         }
     }
 
-    public void sendReq(String name){
-        String url = "http://192.168.52.112:8000/friend_request/?username="+name;
+    public void sendReq(String name) {
+        String url = "http://192.168.52.112:8000/friend_request/?username=" + name;
         addFriendReq frndReq = new addFriendReq(url, AddFriend.this);
         frndReq.execute();
     }
 
-    public void addConfirmation(final String name){
-        String s = "Do you want to add "+ name + " as a friend?";
+    public void addConfirmation(final String name) {
+        String s = "Do you want to add " + name + " as a friend?";
         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                switch (which){
+                switch (which) {
                     case DialogInterface.BUTTON_POSITIVE:
                         sendReq(name);
                         break;
@@ -214,7 +211,7 @@ public class AddFriend extends ActionBarActivity implements SearchView.OnQueryTe
                 .setNegativeButton("No", dialogClickListener).show();
     }
 
-    public void getAllUsers(){
+    public void getAllUsers() {
         String url = "http://192.168.52.112:8000/all_users/";
         getUserList userListReq = new getUserList(url, AddFriend.this);
         userListReq.execute();
@@ -237,7 +234,7 @@ public class AddFriend extends ActionBarActivity implements SearchView.OnQueryTe
         try {
             ViewConfiguration config = ViewConfiguration.get(this);
             Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
-            if(menuKeyField != null) {
+            if (menuKeyField != null) {
                 menuKeyField.setAccessible(true);
                 menuKeyField.setBoolean(config, false);
             }
@@ -270,14 +267,13 @@ public class AddFriend extends ActionBarActivity implements SearchView.OnQueryTe
             @Override
             public void onItemClick(AdapterView<?> parent, final View view,
                                     int position, long id) {
-                                addConfirmation(nameList.get(position));
+                addConfirmation(nameList.get(position));
 
-                            }
+            }
         });
 
 
-
-            //prepare the SearchView
+        //prepare the SearchView
         //searchView = (SearchView) menu.findItem(R.id.frndsearch).getActionView();
 
         //Sets the default or resting state of the search field. If true, a single search icon is shown by default and
@@ -324,7 +320,7 @@ public class AddFriend extends ActionBarActivity implements SearchView.OnQueryTe
 
     @Override
     public boolean onQueryTextChange(String newText) {
-        if (!(newText.length() == 0)){
+        if (!(newText.length() == 0)) {
             displayResults(newText + "*");
         } else {
             myList.setAdapter(defaultAdapter);
@@ -339,10 +335,10 @@ public class AddFriend extends ActionBarActivity implements SearchView.OnQueryTe
 
         if (cursor != null) {
 
-            String[] from = new String[] {SearchHelper.COLUMN_NAME};
+            String[] from = new String[]{SearchHelper.COLUMN_NAME};
 
             // Specify the view where we want the results to go
-            int[] to = new int[] {R.id.frndlistname};
+            int[] to = new int[]{R.id.frndlistname};
 
             // Create a simple cursor adapter to keep the search data
             SimpleCursorAdapter cursorAdapter = new SimpleCursorAdapter(this, R.layout.frndrow, cursor, from, to);
@@ -367,7 +363,7 @@ public class AddFriend extends ActionBarActivity implements SearchView.OnQueryTe
 
                     // Find the position for the original list by the selected name from search
                     for (int pos = 0; pos < nameList.size(); pos++) {
-                        if (nameList.get(pos).equals(selectedName)){
+                        if (nameList.get(pos).equals(selectedName)) {
                             position = pos;
                             break;
                         }
@@ -385,7 +381,7 @@ public class AddFriend extends ActionBarActivity implements SearchView.OnQueryTe
                         }
                     });
 
-                    searchView.setQuery("",true);
+                    searchView.setQuery("", true);
                 }
             });
 
@@ -398,19 +394,20 @@ public class AddFriend extends ActionBarActivity implements SearchView.OnQueryTe
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.add_friend, menu);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
-        // Get the SearchView and set the searchable configuration
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        searchView = (SearchView) menu.findItem(R.id.frndsearch).getActionView();
-        // Assumes current activity is the searchable activity
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
-        searchView.setOnQueryTextListener(this);
-        searchView.setOnCloseListener(this);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            // Get the SearchView and set the searchable configuration
+            SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+            searchView = (SearchView) menu.findItem(R.id.frndsearch).getActionView();
+            // Assumes current activity is the searchable activity
+            searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+            searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
+            searchView.setOnQueryTextListener(this);
+            searchView.setOnCloseListener(this);
         }
 
         return true;
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will

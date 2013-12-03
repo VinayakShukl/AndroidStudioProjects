@@ -157,6 +157,12 @@ public class PendingRequests extends ActionBarActivity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
+        switch (item.getItemId()) {
+            case R.id.pending_refresh:
+                System.out.println("Refreshing");
+                getPendingReqs();
+                return true;
+        }
 
         return super.onOptionsItemSelected(item);
     }
