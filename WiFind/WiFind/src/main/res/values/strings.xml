@@ -17,6 +17,9 @@
         <item>Sort by Location</item>
     </string-array>
 
+    <string name="showcase_title">Action items</string>
+    <string name="showcase_message">You can manage your friends from here</string>
+
     <string name="title_activity_add_friend">Add Friend</string>
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_pending_requests">Pending Requests</string>
